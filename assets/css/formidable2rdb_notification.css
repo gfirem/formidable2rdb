@@ -1,0 +1,51 @@
+/*!
+ * @copyright Copyright &copy; Kartik Visweswaran, Krajee.com, 2013
+ * @package yii2-widgets
+ * @subpackage yii2-widget-growl
+ * @version 1.1.1
+ *
+ * Styling for \kartik\widgets\Growl widget for Bootstrap 3.0
+ * Built for Yii Framework 2.0
+ * Author: Kartik Visweswaran
+ * Year: 2014
+ * For more Yii related demos visit http://demos.krajee.com
+ */
+.alert-fmj {
+    border-radius: 5px;
+    background-color: rgb(152, 151, 152);
+    border-width: 1px;
+    border-color: rgb(95, 95, 95);
+    border-color: rgba(95, 95, 95, 0.9);
+    padding: 10px !important;
+    color: #ffffff;
+}
+
+.alert-fmj a.close {
+    color: #000000;
+    opacity: 1;
+    margin-left: 15px;
+    margin-right: 5px;
+    font-weight: 800;
+    font-size: 1.5em;
+}
+
+.alert-fmj img {
+    float: left;
+    padding: 0px 5px 0px 0px;
+}
+
+.alert-fmj a {
+    color: #fff;
+}
+
+.alert-fmj.alert-success {
+    background-color: rgba(71, 152, 64, 0.9);
+}
+
+.alert-fmj.alert-danger {
+    background-color: rgba(220, 89, 88, 0.9);
+}
+
+.alert-fmj.alert-info {
+    background-color: rgba(103, 145, 184, 0.9);
+}

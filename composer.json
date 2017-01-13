@@ -1,0 +1,17 @@
+{
+    "name": "gfirem/formidable2rdb",
+    "description": "Push Fromidable to relational Database",
+    "type": "project",
+    "license": "Apacha 2.0",
+    "authors": [
+        {
+            "name": "GFireM",
+            "email": "gfirem@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "phpunit/phpunit": "5.5.*"
+
+    }
+}

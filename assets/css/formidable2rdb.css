@@ -1,0 +1,63 @@
+select#FormidableFieldCapabilities_role {
+    width: 150px;
+    height: 125px;
+}
+
+.frm_action_icon.frm_required0 {
+    color: #ababab;
+}
+
+.ffc_message {
+    margin-left: 10px;
+}
+
+.ffc_label {
+    color: #444;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    max-width: 90%;
+    min-height: 20px;
+    font-weight: bold;
+}
+
+.ffc_box {
+    padding: 6px;
+}
+
+.ffc_box:hover {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    padding: 5px;
+    background-color: #fbfdff;
+    border: 1px dashed #d0e9ff;
+}
+
+.pda-card, .pda-manage-menus {
+    min-width: 520px !important;
+    max-width: 70% !important;
+}
+
+.table_structure_container {
+    display: none;
+}
+
+.f2r_loading {
+    display: none;
+}
+
+button.check_table {
+    margin: 10px 10px 10px 30px;
+}
+
+.f2r_error {
+    border-color: #d54e21 !important;
+}
+
+.f2r_map_length, .f2r_map_precision {
+    width: 30%;
+}
+
+.f2r_table_enabled{
+    width: 80px;
+}
