@@ -2,9 +2,6 @@ machine:
   timezone:
     Europe/Copenhagen
 
-  php:
-    version: 5.6.5
-
   # This will be added to the `/etc/hosts` file
   hosts:
     wppusher-plugin.dev: 127.0.0.1
