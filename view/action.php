@@ -44,7 +44,7 @@
 		}
 		foreach ( $fields as $id => $f ):
 			
-			if ( in_array( $f["type"], Formidable2RdbAdmin::exclude_fields() ) ) {
+			if ( in_array( $f["type"], Formidable2RdbGeneric::exclude_fields() ) ) {
 				continue;
 			}
 			
@@ -90,7 +90,7 @@
                 <td>
                     <select field_type="<?php echo $f["type"]; ?>" action_id="<?php echo $this->number ?>" class="f2r f2r_map_type f2r_map_option_<?php echo $this->number ?>" name="f2r_column_type_<?php echo $f["field_key"] ?>" id="f2r_column_type_<?php echo $f["field_key"] ?>">
 						<?php
-						foreach ( Formidable2RdbAdmin::get_granted_column_type_for_field( $f["type"] ) as $k => $i ) {
+						foreach ( Formidable2RdbGeneric::get_granted_column_type_for_field( $f["type"] ) as $k => $i ) {
 							$selected = ( $k == $column_type ) ? "selected='selected'" : '';
 							echo '<option ' . $selected . ' value="' . $k . '">' . $i . '</option>';
 						}

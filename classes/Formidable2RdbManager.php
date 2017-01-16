@@ -10,34 +10,35 @@ class Formidable2RdbManager {
 	protected static $version;
 	
 	public function __construct() {
-		add_action( 'init', array( $this, "session_start" ) );
-		
 		self::$plugin_slug = 'formidable2rdb';
 		self::$version     = '1.0.0';
 		
-		//Load resources
-		require_once 'Formidable2RdbLog.php';
-		new Formidable2RdbLog();
-		
-		require_once 'Formidable2RdbTrackTables.php';
-		new Formidable2RdbTrackTables();
-		
-		require_once 'Formidable2RdbAdmin.php';
-		new Formidable2RdbAdmin();
-		
-		require_once 'Formidable2RdbSettings.php';
-		new Formidable2RdbSettings();
-		
-		add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
-	}
-	
-	/**
-	 * Start session
-	 */
-	public function session_start() {
-		$sid = session_id();
-		if ( empty( $sid ) ) {
-			session_start();
+		try {
+			//Load resources
+			require_once 'Formidable2RdbLog.php';
+			new Formidable2RdbLog();
+			
+			require_once 'Formidable2RdbCore.php';
+			require_once 'core/TreeWalker.php';
+			require_once "Formidable2RdbException.php";
+			
+			require_once 'Formidable2RdbDataTable.php';
+			
+			require_once 'Formidable2RdbAdminView.php';
+			new Formidable2RdbAdminView();
+			
+			require_once 'Formidable2RdbTrackTables.php';
+			new Formidable2RdbTrackTables();
+			
+			require_once 'Formidable2RdbGeneric.php';
+			new Formidable2RdbGeneric();
+			
+			add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
+		} catch ( Exception $ex ) {
+			Formidable2RdbGeneric::setMessage( array(
+				"message" => "Formidable2RdbManager->__construct()::" . $ex,
+				"type"    => "danger"
+			) );
 		}
 	}
 	
@@ -76,5 +77,66 @@ class Formidable2RdbManager {
 	 */
 	public static function t( $str ) {
 		return __( $str, 'formidable2rdb' );
+	}
+	
+	/**
+	 * Handle exceptions
+	 *
+	 * @param $message
+	 * @param null $body
+	 *
+	 * @param bool $output
+	 *
+	 * @return mixed
+	 */
+	public static function handle_exception( $message, $body = null, $output = true ) {
+		if ( ! empty( $body ) && is_array( $body ) ) {
+			$error_str = "";
+			foreach ( $body as $key => $value ) {
+				if ( ! empty( $value ) ) {
+					$error_str .= $key . " : " . $value . "<br/>";
+				}
+			}
+			
+			Formidable2RdbLog::log( array(
+				'action'         => "F2R_Management",
+				'object_type'    => Formidable2RdbManager::getShort(),
+				'object_subtype' => "detail_error",
+				'object_name'    => $message,
+			) );
+			
+			if ( $output ) {
+				self::show_error( $message );
+			}
+			
+			return $message;
+		} else {
+			
+			Formidable2RdbLog::log( array(
+				'action'         => "F2R_Management",
+				'object_type'    => Formidable2RdbManager::getShort(),
+				'object_subtype' => "detail_error",
+				'object_name'    => $message,
+			) );
+			
+			if ( $output ) {
+				self::show_error( $message );
+			}
+		}
+		
+		return $message;
+	}
+	
+	/**
+	 * Output error
+	 *
+	 * @param $string
+	 * @param string $type
+	 */
+	public static function show_error( $string, $type = "danger" ) {
+		Formidable2RdbGeneric::setMessage( array(
+			"message" => $string,
+			"type"    => $type
+		) );
 	}
 }

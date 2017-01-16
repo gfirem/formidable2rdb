@@ -47,6 +47,37 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 		}
 		$sql = "";
 		switch ( $action ) {
+			case "insert":
+				if ( $this->check_requirements( $args, array( "table_name", "columns" ) ) ) {
+					$columns = array();
+					$data    = array();
+					foreach ( $args["columns"] as $key => $value ) {
+						$columns[] = $key;
+						$data[]    = is_string( $value ) ? "'" . $value . "'" : $value;
+					}
+					$column_string = implode( ", ", $columns );
+					$data_string   = implode( ", ", $data );
+					$sql           = "INSERT INTO " . $this->db_name . "." . $this->escape( $args["table_name"] ) . "(" . $column_string . ") VALUES (" . $data_string . ")";
+					
+				}
+				break;
+			case "update":
+				if ( $this->check_requirements( $args, array( "table_name", "columns", "entry_id" ) ) ) {
+					$sql     = "UPDATE " . $this->db_name . "." . $this->escape( $args["table_name"] ) . " SET ";
+					$columns = array();
+					foreach ( $args["columns"] as $key => $value ) {
+						$value     = is_string( $value ) ? "'" . $value . "'" : $value;
+						$columns[] = $this->escape( $args["table_name"] ) . "." . $key . "=" . $value;
+					}
+					$column_string = implode( ", ", $columns );
+					$sql .= $column_string . " WHERE entry_id=" . $args["entry_id"];
+				}
+				break;
+			case "delete":
+				if ( $this->check_requirements( $args, array( "table_name", "entry_id" ) ) ) {
+					$sql = "DELETE FROM " . $this->db_name . "." . $this->escape( $args["table_name"] ) . " WHERE entry_id=" . $args["entry_id"];
+				}
+				break;
 			case "create":
 				if ( $this->check_requirements( $args, array( "table_name", "columns" ) ) ) {
 					$sql = "CREATE TABLE " . $this->db_name . "." . $this->escape( $args["table_name"] ) . " (rdb_id INT NOT NULL AUTO_INCREMENT, created_at TIMESTAMP NULL, entry_id INT NULL,  ";

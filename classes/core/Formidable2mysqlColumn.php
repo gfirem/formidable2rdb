@@ -37,11 +37,11 @@ class Formidable2mysqlColumn {
 		$this->Enabled   = $Enabled;
 		$this->Length    = $Length;
 		$this->Precision = $Precision;
-		$this->Id = $Id;
+		$this->Id        = $Id;
 	}
 	
 	public function process_type( $type, $length, $precision ) {
-		switch ( $type ) {
+		switch ( strtoupper($type) ) {
 			case "VARCHAR":
 				if ( ! empty( $length ) ) {
 					$type = "VARCHAR(" . $length . ")";
@@ -50,8 +50,9 @@ class Formidable2mysqlColumn {
 				}
 				break;
 			case "FLOAT":
-				if ( ! empty( $length ) && ! empty( $precision ) ) {
-					$type = "FLOAT(" . $length . ", " . $precision . ")";
+				if ( ! empty( $length ) ) {
+					$precision = ( ! empty( $precision ) ) ? $precision : 0;
+					$type      = "FLOAT(" . $length . ", " . $precision . ")";
 				} else {
 					$type = "FLOAT(20, 2)";
 				}

@@ -44,6 +44,7 @@ select#FormidableFieldCapabilities_role {
 
 .f2r_loading {
     display: none;
+    margin-left: 10px;
 }
 
 button.check_table {
@@ -60,4 +61,20 @@ button.check_table {
 
 .f2r_table_enabled{
     width: 80px;
+}
+
+.f2r_tables_overview{
+    margin-left:15px;
+}
+
+th#rdb_id {
+    width: 5%;
+}
+
+th#created_at {
+    width: 10%;
+}
+
+th#entry_id {
+    width: 5%;
 }

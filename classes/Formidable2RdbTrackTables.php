@@ -5,19 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Formidable2RdbTrackTables {
-	public function __construct( $hooks = true ) {
-		if ( $hooks == true ) {
-			if ( is_network_admin() ) {
-				add_action( 'network_admin_menu', array( $this, 'network_menu' ) );
-			}
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-			
-			//Track table options
-			add_action( "formidable2rdb_after_add_table", array( $this, "add_track_table" ), 10, 4 );
-			add_action( "formidable2rdb_after_drop_table", array( $this, "delete_track_table" ), 10, 4 );
-			
-			add_action( "wp_insert_post", array( $this, "on_post_inserted" ), 10, 3 );
-		}
+	public function __construct() {
+		//Track table options
+		add_action( "formidable2rdb_after_add_table", array( $this, "add_track_table" ), 10, 4 );
+		add_action( "formidable2rdb_after_drop_table", array( $this, "delete_track_table" ), 10, 4 );
+		add_action( "formidable2rdb_after_rename_table", array( $this, "rename_track_table" ), 10, 2 );
+		
+		add_action( "wp_insert_post", array( $this, "on_post_inserted" ), 10, 3 );
 	}
 	
 	/**
@@ -28,8 +22,6 @@ class Formidable2RdbTrackTables {
 	 * @param $update
 	 */
 	public function on_post_inserted( $post_ID, $post, $update ) {
-		$t = $post;
-		
 		if ( $post->post_excerpt == Formidable2RdbManager::getSlug() && $post->post_type == "frm_form_actions" ) {
 			$post_content = FrmAppHelper::maybe_json_decode( $post->post_content );
 			if ( ! empty( $post_content["f2r_table_name"] ) ) {
@@ -40,32 +32,6 @@ class Formidable2RdbTrackTables {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Network menu
-	 */
-	public function network_menu() {
-		add_submenu_page( "settings.php", Formidable2RdbManager::t( "Formidable2Rdb" ), Formidable2RdbManager::t( "Formidable2Rdb" ), 'manage_network', Formidable2RdbManager::getSlug(), array( $this, 'menu_manage' ) );
-	}
-	
-	/**
-	 * Site menu
-	 */
-	public function admin_menu() {
-		add_submenu_page( 'formidable', Formidable2RdbManager::t( "Formidable2Rdb" ), Formidable2RdbManager::t( "Formidable2Rdb" ), 'manage_options', Formidable2RdbManager::getSlug(), array( $this, 'menu_manage' ) );
-	}
-	
-	/**
-	 * Menu view implementation
-	 */
-	public function menu_manage() {
-		$site_id = ( is_network_admin() ) ? false : get_current_blog_id();
-		$tables  = self::get_tables( $site_id );
-		$aa      = ( is_network_admin() ) ? "SI " : "NO ";
-		echo "Es network " . $aa;
-		echo "<pre>" . json_encode( $tables ) . "</pre>";
-		include( F2M_VIEW_PATH . '/admin.php' );
 	}
 	
 	/**
@@ -169,13 +135,25 @@ class Formidable2RdbTrackTables {
 	 * @return bool|array
 	 */
 	public static function get_track_table_by_name( $table_name ) {
+		return self::get_tracked_table_by( "table", $table_name );
+	}
+	
+	/**
+	 * Get table data by provided key into the setting
+	 *
+	 * @param $source
+	 * @param $data
+	 *
+	 * @return bool|array
+	 */
+	public static function get_tracked_table_by( $source, $data ) {
 		$tables = get_option( Formidable2RdbManager::getSlug() . '_tables' );
 		
 		if ( ! empty( $tables ) ) {
 			$tables = maybe_unserialize( $tables );
 			
 			foreach ( $tables as $table_key => $table_val ) {
-				if ( $table_name == $table_val["table"] ) {
+				if ( $data == $table_val[ $source ] ) {
 					return $table_val;
 				}
 			}
@@ -227,17 +205,40 @@ class Formidable2RdbTrackTables {
 			'object_name'    => "Dropped the table " . $full_table_name,
 		) );
 		
+		self::delete_table( $full_table_name, "full_table" );
+	}
+	
+	/**
+	 * Remove table from the options using the $key param to find into it
+	 *
+	 * @param $table_name
+	 * @param $key
+	 */
+	public static function delete_table( $table_name, $key ) {
 		$tables = get_option( Formidable2RdbManager::getSlug() . '_tables' );
 		
 		if ( ! empty( $tables ) ) {
 			$tables = maybe_unserialize( $tables );
 			foreach ( $tables as $table_key => $table_val ) {
-				if ( $full_table_name == $table_val["full_table"] ) {
+				if ( $table_name == $table_val[ $key ] ) {
 					unset( $tables[ $table_key ] );
 				}
 			}
 			
 			$r = update_option( Formidable2RdbManager::getSlug() . '_tables', maybe_serialize( $tables ) );
 		}
+	}
+	
+	/**
+	 * Update options when table is renamed
+	 *
+	 * @param $old_name
+	 * @param $new_name
+	 */
+	public function rename_track_table( $old_name, $new_name ) {
+		$table               = self::get_track_table_by_name( $old_name );
+		$table["table"]      = $new_name;
+		$table["full_table"] = Formidable2RdbGeneric::get_table_name( $new_name );
+		self::update_track_table( $old_name, $table );
 	}
 }

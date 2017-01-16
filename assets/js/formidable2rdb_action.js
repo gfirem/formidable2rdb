@@ -73,7 +73,7 @@ jQuery(document).ready(function ($) {
                 return false;
             });
             //Only accept alpha in the name map
-            $('.f2r_map_name').keypress(function (e) {
+            $('.f2r_map_name,.f2r_table_name').keypress(function (e) {
                 var regex = new RegExp("^[a-zA-Z0-9-_]+$");
                 var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
                 if (regex.test(str)) {

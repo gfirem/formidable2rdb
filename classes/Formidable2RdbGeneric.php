@@ -3,12 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Formidable2RdbAdmin {
+class Formidable2RdbGeneric {
 	
 	function __construct() {
 		require_once 'GManagerFactory.php';
 		
-		add_filter( 'frm_add_settings_section', array( $this, 'add_formidable_key_field_setting_page' ) );
 		add_filter( F2M_PREFIX . 'plugin_action_links_' . F2M_BASE_NAME, array( $this, 'add_formidable_key_field_setting_link' ), 9, 2 );
 		
 		add_action( 'admin_footer', array( $this, 'enqueue_js' ) );
@@ -17,10 +16,8 @@ class Formidable2RdbAdmin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		
 		add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
-		
-		
+		add_action( "wp_ajax_test_credential", array( $this, "test_credential" ) );
 	}
-	
 	
 	
 	/**
@@ -34,6 +31,47 @@ class Formidable2RdbAdmin {
 		}
 		
 		return sprintf( '%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 16384, 20479 ), mt_rand( 32768, 49151 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ) );
+	}
+	
+	public function test_credential() {
+		if ( ! ( is_array( $_GET ) && defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+			return;
+		}
+		
+		$result = array(
+			"value" => ":(",
+			"data"  => - 1,
+		);
+		
+		if ( ! check_ajax_referer( 'f2r_security_code' ) ) {
+			$this->print_result( $result );
+		}
+		
+		if ( ! empty( $_POST["user"] ) && ! empty( $_POST["host"] ) && ! empty( $_POST["db_name"] ) ) {
+			$args  = array(
+				"driver" => "mysql",
+				"host"   => $_POST["host"],
+				"dbname" => $_POST["db_name"],
+				"user"   => $_POST["user"],
+				"pass"   => $_POST["pass"],
+				"debug"  => false,
+			);
+			$error = true;
+			try {
+				$rdb_core    = new Formidable2RdbCore( $args );
+				$db_instance = $rdb_core->getHandler();
+				if ( ! empty( $db_instance ) ) {
+					$error = false;
+				}
+				
+			} catch ( Formidable2RdbException $ex ) {
+			} catch ( Exception $ex ) {
+			}
+			$result["value"] = "test_credential";
+			$result["data"]  = $error;
+		}
+		
+		$this->print_result( $result );
 	}
 	
 	public function get_add_columns() {
@@ -51,17 +89,11 @@ class Formidable2RdbAdmin {
 		}
 		
 		if ( ! empty( $_POST["table_name"] ) ) {
-			$db_instance = new Formidable2mysql( array(
-				"driver" => "mysql",
-				"host"   => DB_HOST,
-				"dbname" => DB_NAME,
-				"user"   => DB_USER,
-				"pass"   => DB_PASSWORD,
-				"debug"  => true,
-			) );
+			$rdb_core    = new Formidable2RdbCore();
+			$db_instance = $rdb_core->getHandler();
 			
 			$result["value"] = "exist_table";
-			$result["data"]  = $db_instance->exist_table( Formidable2RdbAdmin::get_table_name( $_POST["table_name"] ) );
+			$result["data"]  = $db_instance->exist_table( Formidable2RdbGeneric::get_table_name( $_POST["table_name"] ) );
 		}
 		
 		$this->print_result( $result );
@@ -119,11 +151,15 @@ class Formidable2RdbAdmin {
 			"general_error"       => Formidable2RdbManager::t( "Error, please contact the admin." ),
 			"table_already_exist" => Formidable2RdbManager::t( "Already exist a table with the provided name." ),
 			"f2r_auto_map"        => true,
+			"credential_fail"     => Formidable2RdbManager::t( "FAIL!" ),
+			"credential_invalid"  => Formidable2RdbManager::t( "Invalid Credential, please review it." ),
 		);
 		
 		wp_localize_script( 'formidable2rdb', 'formidable2rdb', $args );
 		
-		$_SESSION["message"] = array();
+		if ( isset( $_SESSION["message"] ) ) {
+			$_SESSION["message"] = array();
+		}
 	}
 	
 	private function load_notification_string() {
@@ -139,24 +175,6 @@ class Formidable2RdbAdmin {
 		} else {
 			return $template;
 		}
-	}
-	
-	/**
-	 * Add setting page to global formidable settings
-	 *
-	 * @param $sections
-	 *
-	 * @return mixed
-	 */
-	public function add_formidable_key_field_setting_page( $sections ) {
-		
-		$sections['formidable2rdb'] = array(
-			'name'     => "Formidable2Rdb",
-			'class'    => 'Formidable2RdbSettings',
-			'function' => 'route',
-		);
-		
-		return $sections;
 	}
 	
 	/**

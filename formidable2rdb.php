@@ -20,22 +20,32 @@ if ( ! defined( 'WPINC' ) ) {
 
 if ( ! class_exists( 'Formidable2Rdb' ) ) :
 	
-	require_once 'plugin-update-checker/plugin-update-checker.php';
+	$sid = session_id();
+	if ( empty( $sid ) ) {
+		session_start();
+	}
 	
-	$myUpdateChecker = PucFactory::buildUpdateChecker( 'http://www.gfirem.com/update-services/?action=get_metadata&slug=formidable2rdb', __FILE__ );
-	$myUpdateChecker->addQueryArgFilter( 'appendFormidable2RdbQueryArgsCredentials' );
-	
-	/**
-	 * Append the order key to the update server URL
-	 *
-	 * @param $queryArgs
-	 *
-	 * @return mixed
-	 */
-	function appendFormidable2RdbQueryArgsCredentials( $queryArgs ) {
-		$queryArgs['order_key'] = get_option( Formidable2RdbManager::getShort() . 'licence_key', '' );
+	try {
+		require_once 'plugin-update-checker/plugin-update-checker.php';
 		
-		return $queryArgs;
+		$myUpdateChecker = PucFactory::buildUpdateChecker( 'http://www.gfirem.com/update-services/?action=get_metadata&slug=formidable2rdb', __FILE__ );
+		$myUpdateChecker->addQueryArgFilter( 'appendFormidable2RdbQueryArgsCredentials' );
+		
+		/**
+		 * Append the order key to the update server URL
+		 *
+		 * @param $queryArgs
+		 *
+		 * @return mixed
+		 */
+		function appendFormidable2RdbQueryArgsCredentials( $queryArgs ) {
+			$queryArgs['order_key'] = get_option( Formidable2RdbManager::getShort() . 'licence_key', '' );
+			
+			return $queryArgs;
+		}
+		
+	} catch ( Exception $ex ) {
+		
 	}
 	
 	class Formidable2Rdb {
@@ -61,7 +71,7 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 			$this->load_plugin_textdomain();
 			
 			require_once 'classes/Formidable2RdbManager.php';
-			$manager = new Formidable2RdbManager();
+			new Formidable2RdbManager();
 		}
 		
 		/**

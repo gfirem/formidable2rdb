@@ -1,7 +1,69 @@
 jQuery(document).ready(function ($) {
 
+    function validate_credential_view() {
+        var result = true;
+        var user = $("#f2r_admin_connection_user").val(),
+            pass = $("#f2r_admin_connection_pass").val(),
+            host = $("#f2r_admin_connection_host").val(),
+            db_name = $("#f2r_admin_connection_db_name").val();
 
+        if (!user || !host || !db_name) {
+            result = false;
+        }
 
+        return result;
+    }
+
+    $("input[name='f2r_submit']").click(function (e) {
+        if (!validate_credential_view()) {
+            e.preventDefault();
+            alert(formidable2rdb.credential_invalid);
+        }
+    });
+
+    $("#f2r_test_credential").click(function () {
+        if (validate_credential_view()) {
+            $(".f2r_loading").show();
+            var user = $("#f2r_admin_connection_user").val(),
+                pass = $("#f2r_admin_connection_pass").val(),
+                host = $("#f2r_admin_connection_host").val(),
+                db_name = $("#f2r_admin_connection_db_name").val();
+
+            $.post(formidable2rdb.admin_url, {
+                'action': 'test_credential',
+                'user': user,
+                'pass': pass,
+                'host': host,
+                'db_name': db_name,
+                '_ajax_nonce': formidable2rdb.security
+            }, function (data) {
+                if (data) {
+                    data = JSON.parse(data);
+                    if (data.value == "test_credential") {
+                        if (data.data == false) {
+                            alert("Ok");
+                        }
+                        else {
+                            alert(formidable2rdb.credential_fail);
+                        }
+                    }
+                    else {
+                        alert(formidable2rdb.general_error);
+                    }
+                }
+                else {
+                    alert(formidable2rdb.general_error);
+                }
+            }).fail(function () {
+                alert(formidable2rdb.general_error);
+            }).always(function () {
+                $(".f2r_loading").hide();
+            });
+        }
+        else {
+            alert(formidable2rdb.credential_invalid);
+        }
+    });
 
 
     // function process_submit() {

@@ -29,10 +29,10 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 	public function testSqlCreateTable() {
 		$mysql = new Formidable2mysql( $this->conf );
 		$sql   = $mysql->create_table( "test", array(
-			0 => new Formidable2mysqlColumn( "string", "varchar(45)", "NO" ),
-			1 => new Formidable2mysqlColumn( "string_2", "varchar(45)" ),
-			2 => new Formidable2mysqlColumn( "integer_col", "integer", "NO" ),
-			3 => new Formidable2mysqlColumn( "float_col", "float", "NO" )
+			0 => new Formidable2mysqlColumn( "string", "varchar", 45, 0, "NO" ),
+			1 => new Formidable2mysqlColumn( "string_2", "varchar", 45 ),
+			2 => new Formidable2mysqlColumn( "integer_col", "integer", 11, 0, "NO" ),
+			3 => new Formidable2mysqlColumn( "float_col", "float", 11, 2, "NO" )
 		) );
 		$error = $sql->errorInfo();
 		$this->assertTrue( $error[0] == 0, $error[2] );
@@ -45,7 +45,7 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 	public function testSqlGetColumns() {
 		$mysql   = new Formidable2mysql( $this->conf );
 		$columns = $mysql->get_columns( "test" );
-		$this->assertTrue( count( $columns ) == 6 );
+		$this->assertTrue( count( $columns ) == 7 );
 	}
 	
 	/**
@@ -54,7 +54,7 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 	public function testSqlChangeColumns() {
 		$mysql = new Formidable2mysql( $this->conf );
 		$sql   = $mysql->change_column( "test", array(
-			"string_2" => new Formidable2mysqlColumn( "string_55", "BLOB", "NO" ),
+			"string_2" => new Formidable2mysqlColumn( "string_55", "BLOB", 0, 0, "NO" ),
 		) );
 		$error = $sql->errorInfo();
 		$this->assertTrue( $error[0] == 0, $error[2] );
@@ -87,8 +87,8 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 	public function testSqlAddColumnTable() {
 		$mysql = new Formidable2mysql( $this->conf );
 		$sql   = $mysql->add_column( "test12", array(
-			1 => new Formidable2mysqlColumn( "column_1", "varchar(45)" ),
-			2 => new Formidable2mysqlColumn( "column_2", "varchar(45)" ),
+			1 => new Formidable2mysqlColumn( "column_1", "varchar", 45 ),
+			2 => new Formidable2mysqlColumn( "column_2", "varchar", 45 ),
 		) );
 		$error = $sql->errorInfo();
 		$this->assertTrue( $error[0] == 0, $error[2] );
@@ -100,8 +100,8 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 	public function testSqlDropColumnTable() {
 		$mysql = new Formidable2mysql( $this->conf );
 		$sql   = $mysql->drop_columns( "test12", array(
-			1 => new Formidable2mysqlColumn( "column_1", "varchar(45)" ),
-			2 => new Formidable2mysqlColumn( "column_2", "varchar(45)" ),
+			1 => new Formidable2mysqlColumn( "column_1", "varchar", 45 ),
+			2 => new Formidable2mysqlColumn( "column_2", "varchar", 45 ),
 		) );
 		$error = $sql->errorInfo();
 		$this->assertTrue( $error[0] == 0, $error[2] );
@@ -125,14 +125,14 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 		$mysql = new Formidable2mysql( $this->conf );
 		$mysql->alter_table( "test", array(
 				"add"    => array(
-					1 => new Formidable2mysqlColumn( "column_1", "varchar(45)" ),
-					2 => new Formidable2mysqlColumn( "column_2", "varchar(45)" )
+					1 => new Formidable2mysqlColumn( "column_1", "varchar", 45 ),
+					2 => new Formidable2mysqlColumn( "column_2", "varchar", 45 )
 				),
 				"drop"   => array(
-					1 => new Formidable2mysqlColumn( "column_1", "varchar(45)" ),
+					1 => new Formidable2mysqlColumn( "column_1", "varchar", 45 ),
 				),
 				"change" => array(
-					"column_2" => new Formidable2mysqlColumn( "column_22", "varchar(45)" )
+					"column_2" => new Formidable2mysqlColumn( "column_22", "varchar", 45 )
 				),
 			)
 		);
@@ -171,19 +171,19 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 			$change = array();
 			if ( ! empty( $diff["new"] ) ) {
 				foreach ( $diff["new"] as $key => $item ) {
-					$add[] = new Formidable2mysqlColumn( $item["Field"], $item["Type"], $item["Null"] );
+					$add[] = new Formidable2mysqlColumn( $item["Field"], $item["Type"], 0, 0, $item["Null"], $item["Key"], $item["Default"], $item["Extra"], false, 0, true );
 				}
 			}
 			if ( ! empty( $diff["removed"] ) ) {
 				foreach ( $diff["removed"] as $key => $item ) {
-					$remove[] = new Formidable2mysqlColumn( $item["Field"], $item["Type"], $item["Null"] );
+					$remove[] = new Formidable2mysqlColumn( $item["Field"], $item["Type"], 0, 0, $item["Null"], $item["Key"], $item["Default"], $item["Extra"], false, 0, true );
 				}
 			}
 			if ( ! empty( $diff["edited"] ) ) {
 				foreach ( $diff["edited"] as $key => $item ) {
 					$source                     = (array) $column[ $key ];
-					$origin                     = (array) $changes[ $key ];
-					$change[ $source["Field"] ] = new Formidable2mysqlColumn( $origin["Field"], $origin["Type"], $origin["Null"] );
+					$target                     = (array) $changes[ $key ];
+					$change[ $source["Field"] ] = new Formidable2mysqlColumn( $target["Field"], $target["Type"], 0, 0, $target["Null"], $target["Key"], $target["Default"], $target["Extra"], false, 0, true );
 				}
 			}
 			
@@ -241,24 +241,41 @@ class Formidable2mysqlTest extends Formidable2RdbTestBase {
 		$this->assertTrue( $result === false );
 	}
 	
-	public function testQuestion1() {
-		$a = array( "1" => "1", "2" => "2", "3" => "3", );
-		$b = array( "1" => "1", "2" => "2", "3" => "3", );
-		$c = array_diff_key( $a, $b );
-		$this->assertEmpty($c);
+	public function testInsert() {
+		$this->testSqlCreateTable();
+		$mysql = new Formidable2mysql( $this->conf );
+		for ( $i = 0; $i <= 10; $i ++ ) {
+			$mysql->insert( "test", array(
+				"created_at"  => date( "Y-m-d H:i:s" ),
+				"entry_id"    => $i,
+				"string"      => "sdddfsdf",
+				"string_2"    => "sdddfsdf",
+				"integer_col" => 122,
+				"float_col"   => 12.2
+			) );
+		}
 	}
 	
-	public function testQuestion2() {
-		$a = array( "1" => "1", "a" => "2", "3" => "3", );
-		$b = array( "1" => "1", "2" => "2", "3" => "3", );
-		$c = array_diff_key( $a, $b );
-		$this->assertEmpty($c);
+	public function testUpdate() {
+		$mysql = new Formidable2mysql( $this->conf );
+		for ( $i = 0; $i <= 10; $i ++ ) {
+			$mysql->update( "test", array(
+				"string"      => "sssssssssssssssss",
+				"integer_col" => 111111111,
+			
+			), $i );
+		}
 	}
 	
-	public function testQuestion3() {
-		$a = array( "1" => "1", "a" => "2", "3" => "3", );
-		$b = array( "1" => "1", "2" => "2", "3" => "3", );
-		$c = array_diff_key( $a, $b );
-		$this->assertEmpty($c);
+	public function testDelete() {
+		$mysql = new Formidable2mysql( $this->conf );
+		for ( $i = 0; $i <= 10; $i ++ ) {
+			$mysql->delete( "test", $i );
+		}
+		
+		$this->testSqlRenameTable();
+		$this->testSqlDropTable();
 	}
+	
+	
 }

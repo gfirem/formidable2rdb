@@ -19,4 +19,10 @@ interface Formidable2RdbInterface {
 	public function exist_table( $table_name );
 	
 	public function exist_column( $table_name, $column_name );
+	
+	public function insert($table_name, $data);
+	
+	public function update($table_name, $data, $entry_id);
+	
+	public function delete($table_name, $data);
 }
