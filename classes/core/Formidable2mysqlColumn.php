@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Formidable2mysqlColumn Map Relational system Column to the system
+ */
 class Formidable2mysqlColumn {
 	public $Field;
 	public $Type;
@@ -32,7 +35,7 @@ class Formidable2mysqlColumn {
 		$this->Type      = ( ! $raw ) ? $this->process_type( $Type, $Length, $Precision ) : $Type;
 		$this->Null      = ( $Null == "YES" || $Null == "NULL" ) ? "NULL" : "NOT NULL";
 		$this->Key       = $Key;
-		$this->Default   = $Default;
+		$this->Default   = ( ! $raw ) ? $this->process_default( $Type, $Default ) : $Default;
 		$this->Extra     = $Extra;
 		$this->Enabled   = $Enabled;
 		$this->Length    = $Length;
@@ -40,27 +43,89 @@ class Formidable2mysqlColumn {
 		$this->Id        = $Id;
 	}
 	
+	/**
+	 * Process the default type of column in base of the type
+	 *
+	 * @param $type
+	 * @param $default
+	 *
+	 * @return mixed
+	 */
+	public function process_default( $type, $default ) {
+		switch ( strtoupper( $type ) ) {
+			case "LONGBLOB":
+			case "TINYBLOB":
+			case "TINYTEXT":
+			case "BLOB":
+			case "TEXT":
+			case "MEDIUMBLOB":
+			case "MEDIUMTEXT":
+			case "LONGTEXT":
+			case "DATETIME":
+			case "TIMESTAMP":
+			case "TIME":
+			case "BINARY":
+			case "VARBINARY":
+				if ( ! empty( $default ) ) {
+					$default = "";
+				}
+				break;
+		}
+		
+		return $default;
+	}
+	
+	/**
+	 * Process the type to crete the string used in the query
+	 *
+	 * @param $type
+	 * @param $length
+	 * @param $precision
+	 *
+	 * @return string
+	 */
 	public function process_type( $type, $length, $precision ) {
-		switch ( strtoupper($type) ) {
+		switch ( strtoupper( $type ) ) {
+			case "BIT":
+			case "TINYINT":
+			case "SMALLINT":
+			case "MEDIUMINT":
+			case "INT":
+			case "INTEGER":
+			case "BIGINT":
+			case "CHAR":
 			case "VARCHAR":
 				if ( ! empty( $length ) ) {
 					$type = "VARCHAR(" . $length . ")";
 				} else {
-					$type = "VARCHAR(100)";
+					$type = "VARCHAR(5)";
 				}
 				break;
 			case "FLOAT":
+			case "DECIMAL":
+			case "DOUBLE":
 				if ( ! empty( $length ) ) {
 					$precision = ( ! empty( $precision ) ) ? $precision : 0;
 					$type      = "FLOAT(" . $length . ", " . $precision . ")";
 				} else {
-					$type = "FLOAT(20, 2)";
+					$type = "FLOAT(5, 2)";
 				}
+				break;
+			
+			case "TINYBLOB":
+			case "TINYTEXT":
+			case "BLOB":
+			case "TEXT":
+			case "MEDIUMBLOB":
+			case "MEDIUMTEXT":
+			case "LONGTEXT":
+			case "LONGBLOB":
 				break;
 			case "DATETIME":
 			case "TIMESTAMP":
-			case "LONGTEXT":
-				break;
+			case "TIME":
+			case "BINARY":
+			case "VARBINARY":
 			default:
 				if ( ! empty( $length ) ) {
 					$type = $type . "(" . $length . ")";

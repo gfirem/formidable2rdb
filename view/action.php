@@ -3,12 +3,16 @@
 <input type="hidden" value="<?php echo esc_attr( $form_action->post_content['f2r_old_mapped_field'] ); ?>" name="<?php echo $action_control->get_field_name( 'f2r_old_mapped_field' ) ?>">
 <input type="hidden" value="<?php echo esc_attr( $form_action->post_content['f2r_old_field'] ); ?>" name="<?php echo $action_control->get_field_name( 'f2r_old_field' ) ?>">
 <h3 id="f2r_section"><?php echo Formidable2RdbManager::t( ' Table configuration ' ) ?></h3>
+<span><?php echo Formidable2RdbManager::t( "Changes are applied when the form is updated." ); ?></span>
 <hr/>
 <table class="form-table frm-no-margin" _>
     <tbody id="f2r-table-body">
     <tr>
         <th>
-            <label for="<?php echo $action_control->get_field_name( 'f2r_table_name' ) ?>"><b><?php echo Formidable2RdbManager::t( ' Table Name: ' ); ?></b></label>
+            <label for="<?php echo $action_control->get_field_name( 'f2r_table_name' ) ?>">
+                <b><?php echo Formidable2RdbManager::t( ' Table Name: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'Create a name for your table here. When you update the form, it will be created in the DB for you and you can change the name later.' ); ?>"></span>
+            </label>
         </th>
         <td>
             <input class="f2r_table_name" type="text" action_id="<?php echo $this->number ?>" value="<?php echo esc_attr( $form_action->post_content['f2r_table_name'] ); ?>" name="<?php echo $action_control->get_field_name( 'f2r_table_name' ) ?>" id="<?php echo $action_control->get_field_name( 'f2r_table_name' ) ?>">
@@ -27,13 +31,34 @@
     <table class="form-table f2r_map_table frm-no-margin">
         <thead>
         <tr>
-            <th><b><?php echo Formidable2RdbManager::t( ' Field Name: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Enabled: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Column Name: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Column Default: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Column Type: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Length/Precision: ' ); ?></th>
-            <th><b><?php echo Formidable2RdbManager::t( ' Null: ' ); ?></th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Field Name: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'The field name used in the form. It includes the id and the type of the field for reference.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Enabled: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'When checked, this field will be mapped to the column in the DB table. If unchecked in later edits, the column will be dropped and the data will be lost.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Column Name: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'The name for the column in the DB. It accepts only letters, numbers and underscores.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Column Default: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'The default value to be saved to the DB table when this form is submitted.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Column Type: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'The format of the data stored in this column. Base this on what type of field is being used to create the data.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Length/Precision: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'The length of the field in characters and when applicable, the precision of a numeric field in decimal places.' ); ?>"></span>
+            </th>
+            <th>
+                <b><?php echo Formidable2RdbManager::t( ' Null: ' ); ?></b>
+                <span class="frm_help frm_icon_font frm_tooltip_icon" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'Whether the column will accept null values.' ); ?>"></span>
+            </th>
         </tr>
         </thead>
         <tbody id="f2r-table-body">
@@ -53,7 +78,7 @@
 			$column_default    = "";
 			$column_type       = "none";
 			$column_enabled    = "";
-			$column_length     = 100;
+			$column_length     = 5;
 			$column_precision  = 0;
 			$is_null           = "selected='selected'";
 			$is_not_null_value = "";
@@ -80,27 +105,32 @@
                 </td>
                 <td class="f2r_table_enabled">
                     <input <?php echo "$column_enabled"; ?> type="checkbox" action_id="<?php echo $this->number ?>" class="f2r f2r_map_enabled f2r_map_option_<?php echo $this->number ?>" name="f2r_map_enabled_<?php echo $f["field_key"] ?>" id="f2r_map_enabled_<?php echo $f["field_key"] ?>" value="1"/>
+                    <span class="frm_help_column_enabled frm_help frm_icon_font frm_tooltip_icon" id="frm_help_column_enabled_<?php echo $this->number ?>" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'When you save the form all the data in the column will be lost.' ); ?>"></span>
                 </td>
                 <td class="f2r_table_standard">
-                    <input type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_name f2r_map_option_<?php echo $this->number ?>" name="f2r_column_name_<?php echo $f["field_key"] ?>" id="f2r_column_name_<?php echo $f["field_key"] ?>" value="<?php echo "$column_name"; ?>">
+                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_name f2r_map_option_<?php echo $this->number ?>" name="f2r_column_name_<?php echo $f["field_key"] ?>" id="f2r_column_name_<?php echo $f["field_key"] ?>" value="<?php echo "$column_name"; ?>">
                 </td>
                 <td>
-                    <input type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>" value="<?php echo "$column_default"; ?>">
+                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>" value="<?php echo "$column_default"; ?>">
                 </td>
                 <td>
-                    <select field_type="<?php echo $f["type"]; ?>" action_id="<?php echo $this->number ?>" class="f2r f2r_map_type f2r_map_option_<?php echo $this->number ?>" name="f2r_column_type_<?php echo $f["field_key"] ?>" id="f2r_column_type_<?php echo $f["field_key"] ?>">
+                    <select field_id="<?php echo $f["field_key"] ?>" field_type="<?php echo $f["type"]; ?>" action_id="<?php echo $this->number ?>" class="f2r f2r_map_type f2r_map_option_<?php echo $this->number ?>" name="f2r_column_type_<?php echo $f["field_key"] ?>" id="f2r_column_type_<?php echo $f["field_key"] ?>">
 						<?php
+						/**
+						 * @var integer $k
+						 * @var Formidable2RdbColumnType $i
+						 */
 						foreach ( Formidable2RdbGeneric::get_granted_column_type_for_field( $f["type"] ) as $k => $i ) {
-							$selected = ( $k == $column_type ) ? "selected='selected'" : '';
-							echo '<option ' . $selected . ' value="' . $k . '">' . $i . '</option>';
+							$selected = ( $i->getType() == $column_type ) ? "selected='selected'" : '';
+							echo '<option ' . $selected . ' value="' . $i->getType() . '">' . $i->getName() . '</option>';
 						}
 						?>
                     </select>
                 </td>
                 <td class="f2r_length_container">
                     <div class="length_precision_container">
-                        <input type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>" value="<?php echo "$column_length"; ?>">
-                        <input type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>" value="<?php echo "$column_precision"; ?>">
+                        <input autocomplete="off" field_id="<?php echo $f["field_key"] ?>" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>" value="<?php echo "$column_length"; ?>">
+                        <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>" value="<?php echo "$column_precision"; ?>">
                     </div>
                 </td>
                 <td>
@@ -112,52 +142,62 @@
             </tr>
 		<?php endforeach; ?>
         <tr>
-            <td colspan="6">
+            <td colspan="7">
                 <hr/>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
+<span><?php echo Formidable2RdbManager::t( "Select when to trigger the action  - when an entry is created, updated, deleted or imported." ); ?></span>
 <script>
-    jQuery(document).ready(function ($) {
-        var action_id = <?php echo $this->number; ?>;
-        $(".frm_form_settings").on("submit", function (e) {
-            var $form = $(this);
-            var mapped_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_mapped_field]']");
-            var mapped_old_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_mapped_field]']");
-            var mapped_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_table_name]']");
-            var mapped_old_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_table_name]']");
+	jQuery(document).ready(function ($) {
+		var action_id = <?php echo $this->number; ?>;
+		$(".frm_form_settings").on("submit", function (e) {
+			var $form = $(this);
+			var mapped_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_mapped_field]']");
+			var mapped_old_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_mapped_field]']");
+			var mapped_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_table_name]']");
+			var mapped_old_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_table_name]']");
 
-            var action_fields = $('table.f2r_map_table tr.f2r_row').map(function (i, v) {
-                var $id = $('.f2r_map_id', this);
-                var $enabled = $('.f2r_map_enabled', this);
-                var $name = $('.f2r_map_name', this);
-                var $default = $('.f2r_map_default', this);
-                var $type = $('.f2r_map_type', this);
-                var $length = $('.f2r_map_length ', this);
-                var $precision = $('.f2r_map_precision', this);
-                var $null = $('.f2r_map_not_null', this);
-                return {
-                    'Id': $id.val(),
-                    'Enabled': $enabled.is(":checked"),
-                    'Field': $name.val(),
-                    'Default': $default.val(),
-                    'Type': $type.val(),
-                    'Length': $length.val(),
-                    'Precision': $precision.val(),
-                    'Null': $null.val()
-                }
-            }).get();
+			var action_fields = $('table.f2r_map_table tr.f2r_row').map(function (i, v) {
+				var $id = $('.f2r_map_id', this);
+				var $enabled = $('.f2r_map_enabled', this);
+				var $name = $('.f2r_map_name', this);
+				var $default = $('.f2r_map_default', this);
+				var $type = $('.f2r_map_type', this);
+				var $length = $('.f2r_map_length ', this);
+				var $precision = $('.f2r_map_precision', this);
+				var $null = $('.f2r_map_not_null', this);
+				return {
+					'Id': $id.val(),
+					'Enabled': $enabled.is(":checked"),
+					'Field': $name.val(),
+					'Default': $default.val(),
+					'Type': $type.val(),
+					'Length': $length.val(),
+					'Precision': $precision.val(),
+					'Null': $null.val()
+				}
+			}).get();
 
-            var json = JSON.stringify(action_fields);
-            mapped_field.val(json);
-            if (!mapped_old_field.val()) {
-                mapped_old_field.val(json);
-            }
-            if (!mapped_old_table_name.val()) {
-                mapped_old_table_name.val(mapped_table_name.val());
-            }
-        });
-    });
+			var json = JSON.stringify(action_fields);
+			mapped_field.val(json);
+			if (!mapped_old_field.val()) {
+				mapped_old_field.val(json);
+			}
+
+			if (!mapped_old_table_name.val()) {
+				mapped_old_table_name.val(mapped_table_name.val());
+			}
+
+			if (!mapped_table_name.val()) {
+				e.preventDefault();
+				mapped_table_name.addClass("f2r_error");
+				alert(formidable2rdb.table_name_required);
+			} else {
+				mapped_table_name.removeClass("f2r_error");
+			}
+		});
+	});
 </script>

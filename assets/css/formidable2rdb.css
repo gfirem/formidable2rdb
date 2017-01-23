@@ -78,3 +78,12 @@ th#created_at {
 th#entry_id {
     width: 5%;
 }
+
+input[type=text]:disabled {
+    background: #dddddd;
+}
+
+.frm_help_column_enabled{
+    display: none;
+    color: #d54e21 !important;
+}

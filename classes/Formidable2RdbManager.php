@@ -15,23 +15,34 @@ class Formidable2RdbManager {
 		
 		try {
 			//Load resources
+			include_once( F2M_WOOSL_PATH . 'class.wooslt.php' );
+			include_once( F2M_WOOSL_PATH . 'class.licence.php' );
+			include_once( F2M_WOOSL_PATH . 'class.options.php' );
+			include_once( F2M_WOOSL_PATH . 'class.updater.php' );
+			
+			
+			require_once 'model/Formidable2RdbColumnType.php';
 			require_once 'Formidable2RdbLog.php';
 			new Formidable2RdbLog();
 			
-			require_once 'Formidable2RdbCore.php';
+			require_once 'Formidable2RdbGeneric.php';
+			new Formidable2RdbGeneric();
+			
 			require_once 'core/TreeWalker.php';
 			require_once "Formidable2RdbException.php";
+			require_once 'Formidable2RdbCore.php';
 			
+			require_once 'class-wp-list-table.php';
 			require_once 'Formidable2RdbDataTable.php';
 			
 			require_once 'Formidable2RdbAdminView.php';
 			new Formidable2RdbAdminView();
 			
+			global $WOO_SLT;
+			$WOO_SLT = new WOO_SLT();
+			
 			require_once 'Formidable2RdbTrackTables.php';
 			new Formidable2RdbTrackTables();
-			
-			require_once 'Formidable2RdbGeneric.php';
-			new Formidable2RdbGeneric();
 			
 			add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
 		} catch ( Exception $ex ) {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @since             1.0.0
@@ -25,29 +24,6 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 		session_start();
 	}
 	
-	try {
-		require_once 'plugin-update-checker/plugin-update-checker.php';
-		
-		$myUpdateChecker = PucFactory::buildUpdateChecker( 'http://www.gfirem.com/update-services/?action=get_metadata&slug=formidable2rdb', __FILE__ );
-		$myUpdateChecker->addQueryArgFilter( 'appendFormidable2RdbQueryArgsCredentials' );
-		
-		/**
-		 * Append the order key to the update server URL
-		 *
-		 * @param $queryArgs
-		 *
-		 * @return mixed
-		 */
-		function appendFormidable2RdbQueryArgsCredentials( $queryArgs ) {
-			$queryArgs['order_key'] = get_option( Formidable2RdbManager::getShort() . 'licence_key', '' );
-			
-			return $queryArgs;
-		}
-		
-	} catch ( Exception $ex ) {
-		
-	}
-	
 	class Formidable2Rdb {
 		
 		/**
@@ -68,7 +44,19 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 			define( 'F2M_IMAGE_PATH', plugin_dir_url( __FILE__ ) . 'assets/image/' );
 			define( 'F2M_VIEW_PATH', plugin_dir_path( __FILE__ ) . 'view/' );
 			define( 'F2M_TEMPLATES_PATH', plugin_dir_path( __FILE__ ) . 'templates/' );
+			define( 'F2M_CLASS_PATH', plugin_dir_path( __FILE__ ) . 'classes/' );
+			define( 'F2M_WOOSL_PATH', F2M_CLASS_PATH . 'woosl/' );
 			$this->load_plugin_textdomain();
+			
+			//WOOSL
+			define( 'WOO_SLT_URL', plugins_url( '', __FILE__ ) );
+			define( 'WOO_SLT_APP_API_URL', 'http://www.gfirem.com/woo-software-license/index.php' );
+			
+			define( 'WOO_SLT_VERSION', '1.0.9' );
+			define( 'WOO_SLT_DB_VERSION', '1.0' );
+			
+			define( 'WOO_SLT_PRODUCT_ID', 'formidable2rdb' );
+			define( 'WOO_SLT_INSTANCE', str_replace( array( "https://", "http://" ), "", network_site_url() ) );
 			
 			require_once 'classes/Formidable2RdbManager.php';
 			new Formidable2RdbManager();

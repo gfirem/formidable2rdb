@@ -14,9 +14,6 @@ class Formidable2RdbGeneric {
 		add_action( 'wp_footer', array( $this, 'enqueue_js' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		
-		add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
-		add_action( "wp_ajax_test_credential", array( $this, "test_credential" ) );
 	}
 	
 	
@@ -31,78 +28,6 @@ class Formidable2RdbGeneric {
 		}
 		
 		return sprintf( '%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 16384, 20479 ), mt_rand( 32768, 49151 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ) );
-	}
-	
-	public function test_credential() {
-		if ( ! ( is_array( $_GET ) && defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-			return;
-		}
-		
-		$result = array(
-			"value" => ":(",
-			"data"  => - 1,
-		);
-		
-		if ( ! check_ajax_referer( 'f2r_security_code' ) ) {
-			$this->print_result( $result );
-		}
-		
-		if ( ! empty( $_POST["user"] ) && ! empty( $_POST["host"] ) && ! empty( $_POST["db_name"] ) ) {
-			$args  = array(
-				"driver" => "mysql",
-				"host"   => $_POST["host"],
-				"dbname" => $_POST["db_name"],
-				"user"   => $_POST["user"],
-				"pass"   => $_POST["pass"],
-				"debug"  => false,
-			);
-			$error = true;
-			try {
-				$rdb_core    = new Formidable2RdbCore( $args );
-				$db_instance = $rdb_core->getHandler();
-				if ( ! empty( $db_instance ) ) {
-					$error = false;
-				}
-				
-			} catch ( Formidable2RdbException $ex ) {
-			} catch ( Exception $ex ) {
-			}
-			$result["value"] = "test_credential";
-			$result["data"]  = $error;
-		}
-		
-		$this->print_result( $result );
-	}
-	
-	public function get_add_columns() {
-		if ( ! ( is_array( $_GET ) && defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-			return;
-		}
-		
-		$result = array(
-			"value" => ":(",
-			"data"  => - 1,
-		);
-		
-		if ( ! check_ajax_referer( 'f2r_security_code' ) ) {
-			$this->print_result( $result );
-		}
-		
-		if ( ! empty( $_POST["table_name"] ) ) {
-			$rdb_core    = new Formidable2RdbCore();
-			$db_instance = $rdb_core->getHandler();
-			
-			$result["value"] = "exist_table";
-			$result["data"]  = $db_instance->exist_table( Formidable2RdbGeneric::get_table_name( $_POST["table_name"] ) );
-		}
-		
-		$this->print_result( $result );
-	}
-	
-	private function print_result( $result ) {
-		$str = json_encode( $result );
-		echo "$str";
-		wp_die();
 	}
 	
 	/**
@@ -139,7 +64,7 @@ class Formidable2RdbGeneric {
 		
 		$notification_view = $this->load_notification_string();
 		if ( $notification_view === false ) {
-			//TODO Add to log error not load the view of the notification
+			Formidable2RdbManager::handle_exception( "Error loading the notification view." );
 		}
 		
 		$args = array(
@@ -153,6 +78,7 @@ class Formidable2RdbGeneric {
 			"f2r_auto_map"        => true,
 			"credential_fail"     => Formidable2RdbManager::t( "FAIL!" ),
 			"credential_invalid"  => Formidable2RdbManager::t( "Invalid Credential, please review it." ),
+			"map_column"          => self::get_granted_column_type(),
 		);
 		
 		wp_localize_script( 'formidable2rdb', 'formidable2rdb', $args );
@@ -235,38 +161,80 @@ class Formidable2RdbGeneric {
 	}
 	
 	/**
-	 * Get all rdb column type mapped to formidable field type
+	 * Get all types mapped to rdb
+	 *
+	 * @return array
+	 */
+	public static function get_granted_column_type() {
+		$bit       = new Formidable2RdbColumnType( "BIT", "Bit", true, true, false, "number" );
+		$tinyint   = new Formidable2RdbColumnType( "TINYINT", "TinyInt", true, true, false, "number" );
+		$smallint  = new Formidable2RdbColumnType( "SMALLINT", "SmallInt", true, true, false, "number" );
+		$mediumint = new Formidable2RdbColumnType( "MEDIUMINT", "MediumInt", true, true, false, "number" );
+		$int       = new Formidable2RdbColumnType( "INT", "Int", true, true, false, "number" );
+		$integer   = new Formidable2RdbColumnType( "INTEGER", "Integer", true, true, false, "number" );
+		$bigint    = new Formidable2RdbColumnType( "BIGINT", "BigInt", true, true, false, "number" );
+		$float     = new Formidable2RdbColumnType( "FLOAT", "Float", true, true, true, "number", 10, 2 );
+		$decimal   = new Formidable2RdbColumnType( "DECIMAL", "Decimal", true, true, true, "number" );
+		$double    = new Formidable2RdbColumnType( "DOUBLE", "Double", true, true, true, "number" );
+		
+		$date      = new Formidable2RdbColumnType( "DATE", "DateTime", false, false, false, "date" );
+		$datetime  = new Formidable2RdbColumnType( "DATETIME", "DateTime", false, true, false, "date" );//The length is used to store the fraction second part fsp
+		$timestamp = new Formidable2RdbColumnType( "TIMESTAMP", "TimeStamp", false, true, false, "date" );//The length is used to store the fraction second part fsp
+		$time      = new Formidable2RdbColumnType( "TIME", "Time", false, true, false, "date" );//The length is used to store the fraction second part fsp
+		
+		$char       = new Formidable2RdbColumnType( "CHAR", "Char", true, true, false );
+		$varchar    = new Formidable2RdbColumnType( "VARCHAR", "Varchar", true, true, false );
+		$binary     = new Formidable2RdbColumnType( "BINARY", "Binary", false, true, false );
+		$varbinary  = new Formidable2RdbColumnType( "VARBINARY", "VarBinary", false, true, false );
+		$tinyblob   = new Formidable2RdbColumnType( "TINYBLOB", "TinyBlob", false, false, false );
+		$tinytext   = new Formidable2RdbColumnType( "TINYTEXT", "TinyText", false, false, false );
+		$blob       = new Formidable2RdbColumnType( "BLOB", "Blob", false, false, false );
+		$text       = new Formidable2RdbColumnType( "TEXT", "Text", false, false, false );
+		$mediumblob = new Formidable2RdbColumnType( "MEDIUMBLOB", "MediumBlob", false, false, false );
+		$mediumtext = new Formidable2RdbColumnType( "MEDIUMTEXT", "MediumText", false, false, false );
+		$longblob   = new Formidable2RdbColumnType( "LONGBLOB", "LongBlob", false, false, false );
+		$longtext   = new Formidable2RdbColumnType( "LONGTEXT", "LongText", false, false, false );
+		
+		$text_group = array( $char, $varchar, $binary, $varbinary, $tinyblob, $tinytext, $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext );
+		$date_group = array( $date, $datetime, $timestamp, $time );
+		$int_group  = array( $bit, $tinyint, $smallint, $mediumint, $int, $integer, $bigint, $float, $decimal, $double );
+		
+		return apply_filters( "formidable2rdb_grant_map_fields", array(
+			'text'     => $text_group,
+			'textarea' => $text_group,
+			'checkbox' => array_merge( $text_group, $int_group ),
+			'radio'    => array_merge( $text_group, $int_group ),
+			'select'   => array_merge( $text_group, $int_group ),
+			'email'    => array( $varchar, $longtext ),
+			'url'      => array( $varchar, $longtext ),
+			'file'     => array( $varchar, $longtext ),
+			'rte'      => array( $varchar, $longtext ),
+			'number'   => $int_group,
+			'phone'    => array_merge( $text_group, $int_group ),
+			'date'     => array_merge( $date_group, $int_group ),
+			'time'     => array_merge( $date_group, $int_group ),
+			'image'    => array( $longtext ),
+			'scale'    => array_merge( $text_group, $int_group ),
+			'data'     => array_merge( $text_group, $int_group ),
+			'lookup'   => array_merge( $text_group, $int_group ),
+			'hidden'   => array_merge( $text_group, array_merge( $int_group, $date_group ) ),
+			'user_id'  => array( $integer ),
+			'password' => array( $varchar, $longtext ),
+			'html'     => array( $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext ),
+			'tag'      => array_merge( $text_group, $int_group ),
+			'address'  => array( $varchar, $longtext ),
+		) );
+	}
+	
+	/**
+	 * Get rdb column type mapped to formidable field type
 	 *
 	 * @param $field_type
 	 *
 	 * @return mixed
 	 */
 	public static function get_granted_column_type_for_field( $field_type ) {
-		$mapped = apply_filters( "formidable2rdb_grant_map_fields", array(
-			'text'     => array( "VARCHAR" => "String" ),
-			'textarea' => array( "VARCHAR" => "String", "LONGTEXT" => "LongText" ),
-			'checkbox' => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'radio'    => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'select'   => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'email'    => array( "VARCHAR" => "String" ),
-			'url'      => array( "VARCHAR" => "String" ),
-			'file'     => array( "VARCHAR" => "String" ),
-			'rte'      => array( "VARCHAR" => "String", "LONGTEXT" => "LongText" ),
-			'number'   => array( "INTEGER" => "Integer", "FLOAT" => "Float" ),
-			'phone'    => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'date'     => array( "DATETIME" => "DateTime", "TIMESTAMP" => "TimeStamp", "INTEGER" => "Integer" ),
-			'time'     => array( "INTEGER" => "Integer", "TIMESTAMP" => "TimeStamp" ),
-			'image'    => array( "VARCHAR" => "String" ),
-			'scale'    => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'data'     => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'lookup'   => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'hidden'   => array( "VARCHAR" => "String", "INTEGER" => "Integer", "DATETIME" => "DateTime", "TIMESTAMP" => "TimeStamp", "LONGTEXT" => "LongText" ),
-			'user_id'  => array( "INTEGER" => "Integer" ),
-			'password' => array( "VARCHAR" => "String" ),
-			'html'     => array( "LONGTEXT" => "LongText" ),
-			'tag'      => array( "VARCHAR" => "String", "INTEGER" => "Integer" ),
-			'address'  => array( "VARCHAR" => "String", "LONGTEXT" => "LongText" ),
-		) );
+		$mapped = self::get_granted_column_type();
 		
 		return $mapped[ $field_type ];
 	}
