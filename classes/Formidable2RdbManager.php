@@ -35,6 +35,9 @@ class Formidable2RdbManager {
 			require_once 'class-wp-list-table.php';
 			require_once 'Formidable2RdbDataTable.php';
 			
+			require_once 'Formidable2RdbFieldOptions.php';
+			new Formidable2RdbFieldOptions();
+			
 			require_once 'Formidable2RdbAdminView.php';
 			new Formidable2RdbAdminView();
 			

@@ -163,29 +163,28 @@ class Formidable2RdbGeneric {
 	/**
 	 * Get all types mapped to rdb
 	 *
-	 * @return array
+	 * @return Formidable2RdbColumnType[][]
 	 */
 	public static function get_granted_column_type() {
 		$bit       = new Formidable2RdbColumnType( "BIT", "Bit", true, true, false, "number" );
 		$tinyint   = new Formidable2RdbColumnType( "TINYINT", "TinyInt", true, true, false, "number" );
 		$smallint  = new Formidable2RdbColumnType( "SMALLINT", "SmallInt", true, true, false, "number" );
 		$mediumint = new Formidable2RdbColumnType( "MEDIUMINT", "MediumInt", true, true, false, "number" );
-		$int       = new Formidable2RdbColumnType( "INT", "Int", true, true, false, "number" );
 		$integer   = new Formidable2RdbColumnType( "INTEGER", "Integer", true, true, false, "number" );
 		$bigint    = new Formidable2RdbColumnType( "BIGINT", "BigInt", true, true, false, "number" );
 		$float     = new Formidable2RdbColumnType( "FLOAT", "Float", true, true, true, "number", 10, 2 );
 		$decimal   = new Formidable2RdbColumnType( "DECIMAL", "Decimal", true, true, true, "number" );
 		$double    = new Formidable2RdbColumnType( "DOUBLE", "Double", true, true, true, "number" );
 		
-		$date      = new Formidable2RdbColumnType( "DATE", "DateTime", false, false, false, "date" );
-		$datetime  = new Formidable2RdbColumnType( "DATETIME", "DateTime", false, true, false, "date" );//The length is used to store the fraction second part fsp
-		$timestamp = new Formidable2RdbColumnType( "TIMESTAMP", "TimeStamp", false, true, false, "date" );//The length is used to store the fraction second part fsp
-		$time      = new Formidable2RdbColumnType( "TIME", "Time", false, true, false, "date" );//The length is used to store the fraction second part fsp
+		$date      = new Formidable2RdbColumnType( "DATE", "Date", false, false, false, "date" );
+		$datetime  = new Formidable2RdbColumnType( "DATETIME", "DateTime", false, false, false, "date" );//The length is used to store the fraction second part fsp
+		$timestamp = new Formidable2RdbColumnType( "TIMESTAMP", "TimeStamp", false, false, false, "date" );//The length is used to store the fraction second part fsp
+		$time      = new Formidable2RdbColumnType( "TIME", "Time", false, false, false, "date" );//The length is used to store the fraction second part fsp
 		
-		$char       = new Formidable2RdbColumnType( "CHAR", "Char", true, true, false );
-		$varchar    = new Formidable2RdbColumnType( "VARCHAR", "Varchar", true, true, false );
-		$binary     = new Formidable2RdbColumnType( "BINARY", "Binary", false, true, false );
-		$varbinary  = new Formidable2RdbColumnType( "VARBINARY", "VarBinary", false, true, false );
+		$char       = new Formidable2RdbColumnType( "CHAR", "Char", true, true, false, "text", 20 );
+		$varchar    = new Formidable2RdbColumnType( "VARCHAR", "Varchar", true, true, false, "text", 20 );
+		$binary     = new Formidable2RdbColumnType( "BINARY", "Binary", false, true, false, "text", 20 );
+		$varbinary  = new Formidable2RdbColumnType( "VARBINARY", "VarBinary", false, true, false, "text", 20 );
 		$tinyblob   = new Formidable2RdbColumnType( "TINYBLOB", "TinyBlob", false, false, false );
 		$tinytext   = new Formidable2RdbColumnType( "TINYTEXT", "TinyText", false, false, false );
 		$blob       = new Formidable2RdbColumnType( "BLOB", "Blob", false, false, false );
@@ -195,9 +194,9 @@ class Formidable2RdbGeneric {
 		$longblob   = new Formidable2RdbColumnType( "LONGBLOB", "LongBlob", false, false, false );
 		$longtext   = new Formidable2RdbColumnType( "LONGTEXT", "LongText", false, false, false );
 		
-		$text_group = array( $char, $varchar, $binary, $varbinary, $tinyblob, $tinytext, $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext );
-		$date_group = array( $date, $datetime, $timestamp, $time );
-		$int_group  = array( $bit, $tinyint, $smallint, $mediumint, $int, $integer, $bigint, $float, $decimal, $double );
+		$text_group = array( $varchar, $char, $binary, $varbinary, $tinyblob, $tinytext, $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext );
+		$date_group = array( $datetime, $date, $timestamp, $time );
+		$int_group  = array( $integer, $tinyint, $smallint, $mediumint, $bit, $bigint, $float, $decimal, $double );
 		
 		return apply_filters( "formidable2rdb_grant_map_fields", array(
 			'text'     => $text_group,
@@ -211,8 +210,8 @@ class Formidable2RdbGeneric {
 			'rte'      => array( $varchar, $longtext ),
 			'number'   => $int_group,
 			'phone'    => array_merge( $text_group, $int_group ),
-			'date'     => array_merge( $date_group, $int_group ),
-			'time'     => array_merge( $date_group, $int_group ),
+			'date'     => $date_group,
+			'time'     => $date_group,
 			'image'    => array( $longtext ),
 			'scale'    => array_merge( $text_group, $int_group ),
 			'data'     => array_merge( $text_group, $int_group ),
@@ -231,12 +230,33 @@ class Formidable2RdbGeneric {
 	 *
 	 * @param $field_type
 	 *
-	 * @return mixed
+	 * @return Formidable2RdbColumnType[]
 	 */
 	public static function get_granted_column_type_for_field( $field_type ) {
 		$mapped = self::get_granted_column_type();
 		
 		return $mapped[ $field_type ];
+	}
+	
+	/**
+	 * Get rdb column type by Type
+	 *
+	 * @param $type
+	 *
+	 * @return Formidable2RdbColumnType
+	 */
+	public static function get_granted_column_by_type( $type ) {
+		$mapped = self::get_granted_column_type();
+		
+		foreach ( $mapped as $key => $items ) {
+			foreach ( $items as $item ) {
+				if ( strpos( $type, $item->getType() ) !== false ) {
+					return $item;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	/**

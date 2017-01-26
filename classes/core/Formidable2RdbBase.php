@@ -26,7 +26,8 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 				array(
 					PDO::ATTR_PERSISTENT               => true,
 					PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
-					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
 				) );
 			
 		} catch ( PDOException $e ) {
@@ -92,7 +93,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 						}
 						$sql .= ", ";
 					}
-					$sql .= "PRIMARY KEY (rdb_id), UNIQUE INDEX rdb_id_unique (rdb_id ASC))";
+					$sql .= "PRIMARY KEY (rdb_id), UNIQUE INDEX rdb_id_unique (rdb_id ASC)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 				} else {
 					throw new InvalidArgumentException();
 				}
@@ -172,7 +173,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 			}
 		}
 		
-		return $sql;
+		return mb_convert_encoding($sql, 'utf8');
 	}
 	
 	public function execute( $sql, $params = null ) {

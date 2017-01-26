@@ -2,6 +2,14 @@
 
 class Formidable2mysqlColumnFactory {
 	
+	/**
+	 * Get the MySql Column from JSON
+	 *
+	 * @param bool $json
+	 * @param bool $force_all
+	 *
+	 * @return Formidable2mysqlColumn[]|bool|Formidable2mysqlColumn
+	 */
 	public static function import_json( $json = false, $force_all = false ) {
 		if ( $json ) {
 			$data = json_decode( stripslashes( $json ), true );

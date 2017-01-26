@@ -265,7 +265,7 @@ class Formidable2mysql extends Formidable2RdbBase {
 			$sql = $this->build_sql( "update", array(
 				"table_name" => $table_name,
 				"columns"    => $data,
-				"entry_id"    => $entry_id,
+				"entry_id"   => $entry_id,
 			) );
 			
 			$result = $this->execute( $sql );
@@ -282,11 +282,27 @@ class Formidable2mysql extends Formidable2RdbBase {
 		}
 	}
 	
+	public function exit_entry( $table_name, $entry_id ) {
+		if ( ! empty( $table_name ) ) {
+			$result = $this->execute( "SELECT COUNT(*) FROM " . $table_name . " WHERE entry_id = " . $entry_id );
+			$result->closeCursor();
+			
+			$error = $result->errorInfo();
+			if ( $error[0] != 0 ) {
+				throw new Formidable2RdbException( $error[2], array( Formidable2RdbManager::t( "Error checking entry into the table." ) . " " . $table_name ) );
+			}
+			
+			return $result;
+		} else {
+			throw new Exception( "The table_name param is empty." );
+		}
+	}
+	
 	public function delete( $table_name, $entry_id ) {
 		if ( ! empty( $table_name ) ) {
 			$sql = $this->build_sql( "delete", array(
 				"table_name" => $table_name,
-				"entry_id"    => $entry_id,
+				"entry_id"   => $entry_id,
 			) );
 			
 			$result = $this->execute( $sql );

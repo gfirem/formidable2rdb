@@ -96,9 +96,9 @@ class Formidable2mysqlColumn {
 			case "CHAR":
 			case "VARCHAR":
 				if ( ! empty( $length ) ) {
-					$type = "VARCHAR(" . $length . ")";
+					$type = $type . "(" . $length . ")";
 				} else {
-					$type = "VARCHAR(5)";
+					$type = $type . "(5)";
 				}
 				break;
 			case "FLOAT":
@@ -106,9 +106,9 @@ class Formidable2mysqlColumn {
 			case "DOUBLE":
 				if ( ! empty( $length ) ) {
 					$precision = ( ! empty( $precision ) ) ? $precision : 0;
-					$type      = "FLOAT(" . $length . ", " . $precision . ")";
+					$type      = $type . "(" . $length . ", " . $precision . ")";
 				} else {
-					$type = "FLOAT(5, 2)";
+					$type = $type . "(5, 2)";
 				}
 				break;
 			
@@ -120,10 +120,11 @@ class Formidable2mysqlColumn {
 			case "MEDIUMTEXT":
 			case "LONGTEXT":
 			case "LONGBLOB":
-				break;
+			case "DATE":
 			case "DATETIME":
 			case "TIMESTAMP":
 			case "TIME":
+				break;
 			case "BINARY":
 			case "VARBINARY":
 			default:

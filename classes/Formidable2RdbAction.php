@@ -148,37 +148,61 @@ class Formidable2RdbAction extends FrmFormAction {
 	}
 	
 	public function before_save_action( $instance_post_content, $instance, $new_instance, $old_instance, $current ) {
-		try {
-			if ( ! empty( $this->current_action ) ) {
-				switch ( $this->current_action ) {
-					case "update_settings": //Executed when action is updated
-						
-						break;
-					case "update"://Executed when form is save, only process removed fields
-						$mapped_to_rdb = Formidable2mysqlColumnFactory::import_json( $instance_post_content["f2r_mapped_field"], true );
-						$new_fields    = FrmField::get_all_for_form( $instance_post_content["form_id"] );
-						$fields        = array();
-						foreach ( $new_fields as $new_field_key => $new_field_value ) {
-							if ( ! in_array( $new_field_value->type, Formidable2RdbGeneric::exclude_fields() ) ) {
-								$fields[ $new_field_value->id ] = $new_field_value->field_key;
+		if ( ! empty( $this->current_action ) ) {
+			switch ( $this->current_action ) {
+				case "update_settings": //Executed when action is updated
+					
+					break;
+				case "update"://Executed when form is save, only process removed fields
+					$mapped_to_rdb = Formidable2mysqlColumnFactory::import_json( $instance_post_content["f2r_mapped_field"], true );
+					$new_fields    = FrmField::get_all_for_form( $instance_post_content["form_id"] );
+					$fields        = array();
+					foreach ( $new_fields as $new_field_key => $new_field_value ) {
+						if ( ! in_array( $new_field_value->type, Formidable2RdbGeneric::exclude_fields() ) ) {
+							$type_old = $new_field_value->type;
+							if ( ! empty( $_POST["field_options"] ) && ! empty( $_POST["field_options"][ "type_" . $new_field_value->id ] ) ) {
+								$type_new = $_POST["field_options"][ "type_" . $new_field_value->id ];
+							}
+							if ( empty( $type_new ) ) {
+								$type_new = $type_old;
+							}
+							$fields[ $new_field_value->id ] = array( "key" => $new_field_value->field_key, "name" => $new_field_value->name, "type" => $type_new, "change" => ( $type_old != $type_new ) );
+						}
+					}
+					$mapped_to_save = array();
+					$has_change     = false;
+					/**
+					 * @var int $mapped_to_rdb_key
+					 * @var Formidable2mysqlColumn $mapped_to_rdb_val
+					 */
+					foreach ( $mapped_to_rdb as $mapped_to_rdb_key => $mapped_to_rdb_val ) {
+						if ( ! array_key_exists( $mapped_to_rdb_key, $fields ) ) {
+							unset( $mapped_to_rdb[ $mapped_to_rdb_key ] );
+						} else {
+							//Check if the type change
+							if ( $fields[ $mapped_to_rdb_key ]["change"] ) {
+								$mapped_to_rdb_val->Type = "LONGTEXT";
+								$has_change              = true;
+							}
+							$mapped_to_save[] = $mapped_to_rdb_val;
+						}
+					}
+					if ( $has_change ) {
+						$fields_changed = array();
+						foreach ( $fields as $field ) {
+							if ( $field["change"] ) {
+								$fields_changed[] = $field["name"];
 							}
 						}
-						$mapped_to_save = array();
-						foreach ( $mapped_to_rdb as $mapped_to_rdb_key => $mapped_to_rdb_val ) {
-							if ( ! array_key_exists( $mapped_to_rdb_key, $fields ) ) {
-								unset( $mapped_to_rdb[ $mapped_to_rdb_key ] );
-							} else {
-								$mapped_to_save[] = $mapped_to_rdb_val;
-							}
-						}
-						$instance_post_content["f2r_mapped_field"] = json_encode( $mapped_to_save );
-						$this->process_table_columns( $instance_post_content["form_id"], $instance_post_content );
-						break;
-				}
+						Formidable2RdbManager::show_error(
+							sprintf( Formidable2RdbManager::t( "The field(s) %s was change to generic type, please customize in the action." ), implode( ", ", $fields_changed ) ),
+							"info"
+						);
+					}
+					$instance_post_content["f2r_mapped_field"] = json_encode( $mapped_to_save );
+					$this->process_table_columns( $instance_post_content["form_id"], $instance_post_content );
+					break;
 			}
-			
-		} catch ( Exception $ex ) {
-			Formidable2RdbManager::handle_exception( $ex->getMessage() );
 		}
 		
 		return $instance_post_content;
@@ -221,6 +245,7 @@ class Formidable2RdbAction extends FrmFormAction {
 			}
 		} catch ( Exception $ex ) {
 			Formidable2RdbManager::handle_exception( $ex->getMessage() );
+			$errors = array_merge( $errors, array( "0" => $ex->getMessage() ) );
 		}
 		
 		return $errors;
@@ -301,28 +326,7 @@ class Formidable2RdbAction extends FrmFormAction {
 			$site_id         = is_multisite() ? get_current_blog_id() : false;
 			if ( ! empty( $mapped_to_rdb ) ) {
 				if ( ! $this->rdb_instance->exist_table( $full_table_name ) ) {
-					/**
-					 * Execute before create table name
-					 *
-					 * @param $full_table_name String Complete table name
-					 * @param $table_name String The custom part of the name
-					 * @param $site_id Integer|Boolean The site Id or false is single site
-					 * @param $action_id Integer The action id
-					 *
-					 */
-					do_action( "formidable2rdb_before_add_table", $full_table_name, $table_name, $site_id, $action_id );
-					//Create a table if not exist
-					$this->rdb_instance->create_table( $full_table_name, $mapped_to_rdb );
-					/**
-					 * Execute after create table name
-					 *
-					 * @param $full_table_name String Complete table name
-					 * @param $table_name String The custom part of the name
-					 * @param $site_id Integer|Boolean The site Id or false is single site
-					 * @param $action_id Integer The action id
-					 *
-					 */
-					do_action( "formidable2rdb_after_add_table", $full_table_name, $table_name, $site_id, $action_id );
+					$this->create_table_into_rdb( $action_id, $full_table_name, $table_name, $site_id, $mapped_to_rdb );
 				} else {
 					if ( ! empty( $post_content["f2r_old_mapped_field"] ) ) {//detect changes into the mapped fields
 						$old_mapped_to_rdb = Formidable2mysqlColumnFactory::import_json( $post_content["f2r_old_mapped_field"], $raw );
@@ -360,12 +364,26 @@ class Formidable2RdbAction extends FrmFormAction {
 											"change" => $change,
 										)
 									);
+									$this->save_to_field( $mapped_to_rdb );
 								}
 							}
 						}
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Save mpa data into fields
+	 *
+	 * @param Formidable2mysqlColumn[] $mapped_to_rdb
+	 */
+	public function save_to_field( $mapped_to_rdb ) {
+		foreach ( $mapped_to_rdb as $key => $item ) {
+			$field                                  = FrmField::getOne( $item->Id );
+			$field->field_options['formidable2rdb'] = maybe_serialize( $item );
+			FrmField::update( $item->Id, (array) $field );
 		}
 	}
 	
@@ -492,20 +510,39 @@ class Formidable2RdbAction extends FrmFormAction {
 			     && ! empty( $action->post_content["f2r_mapped_field"] ) && ! empty( $action->post_content["f2r_table_name"] )
 			) {
 				$table_name = Formidable2RdbGeneric::get_table_name( $action->post_content["f2r_table_name"] );
+				$map_to_rdb = Formidable2mysqlColumnFactory::import_json( $action->post_content["f2r_mapped_field"] );
+				$site_id    = is_multisite() ? get_current_blog_id() : false;
+				if ( ! $this->rdb_instance->exist_table( $table_name ) ) {
+					$this->create_table_into_rdb( $action->ID, $table_name, $action->post_content["f2r_table_name"], $site_id, $map_to_rdb );
+				}
+				
 				if ( $event != "delete" ) {
 					if ( ! empty( $entry->metas ) ) {
-						$map_to_rdb              = Formidable2mysqlColumnFactory::import_json( $action->post_content["f2r_mapped_field"] );
 						$push_data               = array();
 						$push_data["created_at"] = date( "Y-m-d H:i:s" );
 						$push_data["entry_id"]   = $entry->id;
 						foreach ( $map_to_rdb as $map_key => $map_data ) {
-							$push_data[ $map_data->Field ] = $entry->metas[ $map_key ];
+							//TODO improve the data cast to push into the rdb
+							$value = $entry->metas[ $map_key ];
+							if ( is_string( $value ) ) {
+								$value = sanitize_text_field( $value );
+							} else if ( is_numeric( $value ) ) {
+								$value = intval( $value );
+							} else if ( is_array( $value ) ) {
+								$value = sanitize_text_field( implode( ", ", $value ) );
+							}
+							$push_data[ $map_data->Field ] = $value;
 						}
 						
 						if ( $event == "create" ) {
 							$this->rdb_instance->insert( $table_name, $push_data );
 						} else if ( $event == "update" ) {
-							$this->rdb_instance->update( $table_name, $push_data, $entry->id );
+							$result = $this->rdb_instance->getMbd()->query("SELECT COUNT(*) FROM ".$table_name." WHERE entry_id = ". $entry->id )->fetchColumn(0);
+							if ( $result >= 1 ) {
+								$this->rdb_instance->update( $table_name, $push_data, $entry->id );
+							} else {
+								$this->rdb_instance->insert( $table_name, $push_data );
+							}
 						}
 					}
 				} else if ( $event == "delete" ) {
@@ -638,6 +675,40 @@ class Formidable2RdbAction extends FrmFormAction {
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * Create table into the rdb
+	 *
+	 * @param $action_id
+	 * @param $full_table_name
+	 * @param $table_name
+	 * @param $site_id
+	 * @param $mapped_to_rdb
+	 */
+	private function create_table_into_rdb( $action_id, $full_table_name, $table_name, $site_id, $mapped_to_rdb ) {
+		/**
+		 * Execute before create table name
+		 *
+		 * @param $full_table_name String Complete table name
+		 * @param $table_name String The custom part of the name
+		 * @param $site_id Integer|Boolean The site Id or false is single site
+		 * @param $action_id Integer The action id
+		 *
+		 */
+		do_action( "formidable2rdb_before_add_table", $full_table_name, $table_name, $site_id, $action_id );
+		//Create a table if not exist
+		$this->rdb_instance->create_table( $full_table_name, $mapped_to_rdb );
+		/**
+		 * Execute after create table name
+		 *
+		 * @param $full_table_name String Complete table name
+		 * @param $table_name String The custom part of the name
+		 * @param $site_id Integer|Boolean The site Id or false is single site
+		 * @param $action_id Integer The action id
+		 *
+		 */
+		do_action( "formidable2rdb_after_add_table", $full_table_name, $table_name, $site_id, $action_id );
 	}
 	
 }
