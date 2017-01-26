@@ -109,7 +109,8 @@ class Formidable2RdbGeneric {
 	 * @return string
 	 */
 	public static function get_setting_link() {
-		return sprintf( '<a href="%s">%s</a>', esc_attr( admin_url( 'admin.php?page=formidable-settings&t=formidable2rdb_settings' ) ), Formidable2RdbManager::t( "Settings" ) );
+		$url = (is_network_admin())? network_admin_url('admin.php?page=formidable2rdb') : admin_url('admin.php?page=formidable2rdb');
+		return sprintf( '<a href="%s">%s</a>', esc_attr( $url ), Formidable2RdbManager::t( "Settings" ) );
 	}
 	
 	/**
