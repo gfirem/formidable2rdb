@@ -87,3 +87,7 @@ input[type=text]:disabled {
     display: none;
     color: #d54e21 !important;
 }
+table.form-table.f2r_map_table.frm-no-margin {
+    display: block;
+    overflow-x: scroll;
+}

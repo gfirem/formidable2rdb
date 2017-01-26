@@ -113,13 +113,13 @@ class WOO_SLT_options_interface {
 				return;
 			}
 			?>
-            <div class="updated fade"><p><?php _e( "WooCommerce Software Licence - Plugin Example is inactive, please enter your", 'formidable2rdb' ) ?> <a href="<?php echo network_admin_url() ?>admin.php?page=formidable2rdb"><?php _e( "Licence Key", 'formidable2rdb' ) ?></a></p></div><?php
+            <div class="updated fade"><p><?php _e( "Formidable2Rdb license is inactive, please enter your", 'formidable2rdb' ) ?> <a href="<?php echo network_admin_url() ?>admin.php?page=formidable2rdb"><?php _e( "key", 'formidable2rdb' ) ?></a></p></div><?php
 		} else {
 			if ( isset( $screen->id ) && $screen->id == 'formidable2rdb_page_formidable2rdb_license' ) {
 				return;
 			}
 			?>
-            <div class="updated fade"><p><?php _e( "WooCommerce Software Licence - Plugin Example is inactive, please enter your", 'formidable2rdb' ) ?> <a href="<?php echo admin_url() ?>admin.php?page=formidable2rdb_license'"><?php _e( "Licence Key", 'formidable2rdb' ) ?></a></p></div><?php
+            <div class="updated fade"><p><?php _e( "Formidable2Rdb license is inactive, please enter your", 'formidable2rdb' ) ?> <a href="<?php echo admin_url() ?>admin.php?page=formidable2rdb_license'"><?php _e( "key", 'formidable2rdb' ) ?></a></p></div><?php
 		}
 	}
 	
