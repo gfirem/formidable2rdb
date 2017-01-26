@@ -16,7 +16,7 @@ class WOO_SLT_options_interface {
 			add_action( 'init', array( $this, 'options_update' ), 1 );
 		}
 		
-		if ( ! is_network_admin() ) {
+		if ( ! is_multisite() ) {
 			add_action( 'admin_menu', array( $this, 'menu' ) );
 		} else {
 			add_action( 'network_admin_menu', array( $this, 'menu' ) );
@@ -40,7 +40,7 @@ class WOO_SLT_options_interface {
 			$call_back = 'licence_deactivate_form';
 		}
 		
-		if ( ! is_network_admin() ) {
+		if ( ! is_multisite() ) {
 			$hookID = add_submenu_page( Formidable2RdbManager::getSlug(), __( "License", 'formidable2rdb' ), __( "License", 'formidable2rdb' ), 'manage_options', Formidable2RdbManager::getSlug() . '_license', array( $this, $call_back ) );
 		} else {
 			$hookID = add_menu_page( __( "Formidable2Rdb", 'formidable2rdb' ), __( "Formidable2Rdb", 'formidable2rdb' ), 'manage_network', Formidable2RdbManager::getSlug(), array( $this, $call_back ), F2M_IMAGE_PATH . "rdb-20.png" );

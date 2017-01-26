@@ -11,7 +11,7 @@ class Formidable2RdbManager {
 	
 	public function __construct() {
 		self::$plugin_slug = 'formidable2rdb';
-		self::$version     = '1.0.0';
+		self::$version     = '1.0.1';
 		
 		try {
 			//Load resources
