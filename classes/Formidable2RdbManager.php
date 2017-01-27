@@ -8,18 +8,17 @@ class Formidable2RdbManager {
 	private static $plugin_slug;
 	private static $plugin_short = 'Formidable2Rdb';
 	protected static $version;
+	protected static $api_url = 'http://www.gfirem.com/woo-software-license/index.php';
+	protected static $instance = 'http://www.gfirem.com/woo-software-license/index.php';
 	
 	public function __construct() {
 		self::$plugin_slug = 'formidable2rdb';
 		self::$version     = '1.0.1';
+		self::$instance    = str_replace( array( "https://", "http://" ), "", network_site_url() );
 		
 		try {
 			//Load resources
-			include_once( F2M_WOOSL_PATH . 'class.wooslt.php' );
-			include_once( F2M_WOOSL_PATH . 'class.licence.php' );
-			include_once( F2M_WOOSL_PATH . 'class.options.php' );
-			include_once( F2M_WOOSL_PATH . 'class.updater.php' );
-			
+			include_once( F2M_WOOSL_PATH . 'WooSLFactory.php' );
 			
 			require_once 'model/Formidable2RdbColumnType.php';
 			require_once 'Formidable2RdbLog.php';
@@ -41,8 +40,9 @@ class Formidable2RdbManager {
 			require_once 'Formidable2RdbAdminView.php';
 			new Formidable2RdbAdminView();
 			
-			global $WOO_SLT;
-			$WOO_SLT = new WOO_SLT();
+			$wooslt_license   = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltLicence" );
+			$wooslt_interface = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltOptionsInterface" );
+			add_action( 'after_setup_theme', array( $this, 'run_updater' ) );
 			
 			require_once 'Formidable2RdbTrackTables.php';
 			new Formidable2RdbTrackTables();
@@ -54,6 +54,24 @@ class Formidable2RdbManager {
 				"type"    => "danger"
 			) );
 		}
+	}
+	
+	/**
+	 * Function to handle the plugins update
+	 */
+	function run_updater() {
+		$updater = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltCodeAutoUpdate", array(
+				"api_url" => self::getApi(),
+				"slug"    => self::getSlug(),
+				"plugin"  => "formidable2rdb/formidable2rdb.php"
+			)
+		);
+		
+		// Take over the update check
+		add_filter( 'pre_set_site_transient_update_plugins', array( $updater, 'check_for_plugin_update' ) );
+		
+		// Take over the Plugin info screen
+		add_filter( 'plugins_api', array( $updater, 'plugins_api_call' ), 10, 3 );
 	}
 	
 	/**
@@ -80,6 +98,14 @@ class Formidable2RdbManager {
 	
 	static function getSlug() {
 		return self::$plugin_slug;
+	}
+	
+	static function getApi() {
+		return self::$api_url;
+	}
+	
+	static function getInstance() {
+		return self::$instance;
 	}
 	
 	/**

@@ -36,27 +36,19 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 		 */
 		private function __construct() {
 			define( 'F2M_BASE_NAME', plugin_basename( __FILE__ ) );
+			define( 'F2M_ABSPATH', trailingslashit( str_replace( "\\", "/", plugin_dir_path( __FILE__ ) ) ) );
+			define( 'F2M_URLPATH', trailingslashit( str_replace( "\\", "/", plugin_dir_url( __FILE__ ) ) ) );
 			define( 'F2M_PREFIX', is_network_admin() ? 'network_admin_' : '' );
-			define( 'F2M_JS_PATH', plugin_dir_url( __FILE__ ) . 'assets/js/' );
-			define( 'F2M_CSS_PATH', plugin_dir_url( __FILE__ ) . 'assets/css/' );
-			define( 'F2M_IMAGE_PATH', plugin_dir_url( __FILE__ ) . 'assets/image/' );
-			define( 'F2M_VIEW_PATH', plugin_dir_path( __FILE__ ) . 'view/' );
-			define( 'F2M_TEMPLATES_PATH', plugin_dir_path( __FILE__ ) . 'templates/' );
-			define( 'F2M_CLASS_PATH', plugin_dir_path( __FILE__ ) . 'classes/' );
-			define( 'F2M_WOOSL_PATH', F2M_CLASS_PATH . 'woosl/' );
+			define( 'F2M_JS_PATH', F2M_URLPATH . 'assets/js/' );
+			define( 'F2M_CSS_PATH', F2M_URLPATH . 'assets/css/' );
+			define( 'F2M_IMAGE_PATH', F2M_URLPATH . 'assets/image/' );
+			define( 'F2M_VIEW_PATH', F2M_ABSPATH . 'view/' );
+			define( 'F2M_TEMPLATES_PATH', F2M_ABSPATH . 'templates/' );
+			define( 'F2M_CLASS_PATH', F2M_ABSPATH . 'classes/' );
+			define( 'F2M_WOOSL_PATH', F2M_CLASS_PATH . 'wooslt/' );
 			$this->load_plugin_textdomain();
 			
-			//WOOSL
-			define( 'WOO_SLT_URL', plugins_url( '', __FILE__ ) );
-			define( 'WOO_SLT_APP_API_URL', 'http://www.gfirem.com/woo-software-license/index.php' );
-			
-			define( 'WOO_SLT_VERSION', '1.0.9' );
-			define( 'WOO_SLT_DB_VERSION', '1.0' );
-			
-			define( 'WOO_SLT_PRODUCT_ID', 'formidable2rdb' );
-			define( 'WOO_SLT_INSTANCE', str_replace( array( "https://", "http://" ), "", network_site_url() ) );
-			
-			require_once 'classes/Formidable2RdbManager.php';
+			require_once F2M_CLASS_PATH.'Formidable2RdbManager.php';
 			new Formidable2RdbManager();
 		}
 		
