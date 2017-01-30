@@ -90,9 +90,6 @@ class Formidable2RdbManager {
 					'first-path' => 'admin.php?page=' . Formidable2RdbManager::getSlug(),
 					'support'    => false,
 				),
-				// Set the SDK to work in a sandbox mode (for development & testing).
-				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
-				'secret_key'          => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
 			) );
 		}
 		
