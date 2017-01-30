@@ -5,10 +5,11 @@
  * @wordpress-plugin
  * Plugin Name:       Formidable2Rdb
  * Description:       Formidable action to push data to Relational Data Base.
- * Version:           1.0.1
+ * Version:           1.1.0
  * Author:            gfirem
  * License:           Apache License 2.0
  * License URI:       http://www.apache.org/licenses/
+ * Network:           True
  */
 
 if ( ! defined( 'WPINC' ) ) {
@@ -48,7 +49,7 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 			define( 'F2M_WOOSL_PATH', F2M_CLASS_PATH . 'wooslt/' );
 			$this->load_plugin_textdomain();
 			
-			require_once F2M_CLASS_PATH.'Formidable2RdbManager.php';
+			require_once F2M_CLASS_PATH . 'Formidable2RdbManager.php';
 			new Formidable2RdbManager();
 		}
 		

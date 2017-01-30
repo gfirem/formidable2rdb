@@ -13,47 +13,90 @@ class Formidable2RdbManager {
 	
 	public function __construct() {
 		self::$plugin_slug = 'formidable2rdb';
-		self::$version     = '1.0.1';
+		self::$version     = '1.1.0';
 		self::$instance    = str_replace( array( "https://", "http://" ), "", network_site_url() );
 		
 		try {
-			//Load resources
-			include_once( F2M_WOOSL_PATH . 'WooSLFactory.php' );
-			
-			require_once 'model/Formidable2RdbColumnType.php';
-			require_once 'Formidable2RdbLog.php';
-			new Formidable2RdbLog();
-			
-			require_once 'Formidable2RdbGeneric.php';
-			new Formidable2RdbGeneric();
-			
-			require_once 'core/TreeWalker.php';
-			require_once "Formidable2RdbException.php";
-			require_once 'Formidable2RdbCore.php';
-			
-			require_once 'class-wp-list-table.php';
-			require_once 'Formidable2RdbDataTable.php';
-			
-			require_once 'Formidable2RdbFieldOptions.php';
-			new Formidable2RdbFieldOptions();
-			
-			require_once 'Formidable2RdbAdminView.php';
-			new Formidable2RdbAdminView();
-			
-			$wooslt_license   = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltLicence" );
-			$wooslt_interface = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltOptionsInterface" );
-			add_action( 'after_setup_theme', array( $this, 'run_updater' ) );
-			
-			require_once 'Formidable2RdbTrackTables.php';
-			new Formidable2RdbTrackTables();
-			
-			add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
+			require_once 'class-tgm-plugin-activation.php';
+			require_once 'Formidable2RdbRequired.php';
+			new Formidable2RdbRequired();
+			$this->for_fs();
+			if ( self::is_formidable_active() ) {
+				
+				require_once 'model/Formidable2RdbColumnType.php';
+				require_once 'Formidable2RdbLog.php';
+				new Formidable2RdbLog();
+				
+				require_once 'Formidable2RdbGeneric.php';
+				new Formidable2RdbGeneric();
+				
+				require_once 'core/TreeWalker.php';
+				require_once "Formidable2RdbException.php";
+				require_once 'Formidable2RdbCore.php';
+				
+				require_once 'class-wp-list-table.php';
+				require_once 'Formidable2RdbDataTable.php';
+				
+				require_once 'Formidable2RdbFieldOptions.php';
+				new Formidable2RdbFieldOptions();
+				
+				require_once 'Formidable2RdbAdminView.php';
+				new Formidable2RdbAdminView();
+				
+				
+				require_once 'Formidable2RdbTrackTables.php';
+				new Formidable2RdbTrackTables();
+				
+				add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
+			}
 		} catch ( Exception $ex ) {
 			Formidable2RdbGeneric::setMessage( array(
 				"message" => "Formidable2RdbManager->__construct()::" . $ex,
 				"type"    => "danger"
 			) );
 		}
+	}
+	
+	public static function load_plugins_dependency() {
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	}
+	
+	public static function is_formidable_active() {
+		self::load_plugins_dependency();
+		
+		return is_plugin_active( 'formidable/formidable.php' );
+	}
+	
+	public function for_fs() {
+		/** @var Freemius $for_fs */
+		global $for_fs;
+		
+		if ( ! isset( $for_fs ) ) {
+			// Include Freemius SDK.
+			require_once dirname( __FILE__ ) . '/freemius/start.php';
+			
+			$for_fs = fs_dynamic_init( array(
+				'id'                  => '723',
+				'slug'                => Formidable2RdbManager::getSlug(),
+				'type'                => 'plugin',
+				'public_key'          => 'pk_dc6ce49acae620ba0bc501baaebe6',
+				'is_premium'          => true,
+				'has_premium_version' => false,
+				'has_addons'          => false,
+				'has_paid_plans'      => true,
+				'is_org_compliant'    => false,
+				'menu'                => array(
+					'slug'       => Formidable2RdbManager::getSlug(),
+					'first-path' => 'admin.php?page=' . Formidable2RdbManager::getSlug(),
+					'support'    => false,
+				),
+				// Set the SDK to work in a sandbox mode (for development & testing).
+				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
+				'secret_key'          => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
+			) );
+		}
+		
+		return $for_fs;
 	}
 	
 	/**
