@@ -77,7 +77,7 @@ class Formidable2RdbManager {
 			
 			$for_fs = fs_dynamic_init( array(
 				'id'                  => '723',
-				'slug'                => Formidable2RdbManager::getSlug(),
+				'slug'                => 'formidable2rdb',
 				'type'                => 'plugin',
 				'public_key'          => 'pk_dc6ce49acae620ba0bc501baaebe6',
 				'is_premium'          => true,
@@ -86,32 +86,17 @@ class Formidable2RdbManager {
 				'has_paid_plans'      => true,
 				'is_org_compliant'    => false,
 				'menu'                => array(
-					'slug'       => Formidable2RdbManager::getSlug(),
-					'first-path' => 'admin.php?page=' . Formidable2RdbManager::getSlug(),
+					'slug'       => 'formidable2rdb',
+					'first-path' => 'admin.php?page=formidable2rdb',
 					'support'    => false,
 				),
+				// Set the SDK to work in a sandbox mode (for development & testing).
+				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
+				'secret_key'          => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
 			) );
 		}
 		
 		return $for_fs;
-	}
-	
-	/**
-	 * Function to handle the plugins update
-	 */
-	function run_updater() {
-		$updater = WooSLFactory::buildManager( "Formidable2RdbManager", "WooSltCodeAutoUpdate", array(
-				"api_url" => self::getApi(),
-				"slug"    => self::getSlug(),
-				"plugin"  => "formidable2rdb/formidable2rdb.php"
-			)
-		);
-		
-		// Take over the update check
-		add_filter( 'pre_set_site_transient_update_plugins', array( $updater, 'check_for_plugin_update' ) );
-		
-		// Take over the Plugin info screen
-		add_filter( 'plugins_api', array( $updater, 'plugins_api_call' ), 10, 3 );
 	}
 	
 	/**

@@ -119,11 +119,103 @@ class Formidable2RdbAction extends FrmFormAction {
 	 * @return int|WP_Error|WP_Post
 	 */
 	public function save_settings( $settings ) {
-		if ( ! empty( $settings["post_content"]["f2r_mapped_field"] ) ) {
-			$settings["post_content"]["f2r_old_mapped_field"] = $settings["post_content"]["f2r_mapped_field"];
+		if ( is_array( $settings ) ) {
+			if ( ! empty( $settings["post_content"]["f2r_mapped_field"] ) ) {
+				$settings["post_content"]["f2r_old_mapped_field"] = $settings["post_content"]["f2r_mapped_field"];
+			}
+		} else {
+			if ( ! empty( $settings->post_content["f2r_mapped_field"] ) ) {
+				$settings->post_content["f2r_old_mapped_field"] = $settings->post_content["f2r_mapped_field"];
+			}
 		}
 		
 		return parent::save_settings( $settings );
+	}
+	
+	public function duplicate_one( $action, $form_id ) {
+		global $frm_duplicate_ids;
+		
+		$action->menu_order = $form_id;
+		$switch             = $this->get_global_switch_fields();
+		foreach ( (array) $action->post_content as $key => $val ) {
+			if ( is_numeric( $val ) && isset( $frm_duplicate_ids[ $val ] ) ) {
+				$action->post_content[ $key ] = $frm_duplicate_ids[ $val ];
+			} else if ( ! is_array( $val ) ) {
+				$action->post_content[ $key ] = $this->switch_field_ids( $val );
+			} else if ( isset( $switch[ $key ] ) && is_array( $switch[ $key ] ) ) {
+				// loop through each value if empty
+				if ( empty( $switch[ $key ] ) ) {
+					$switch[ $key ] = array_keys( $val );
+				}
+				
+				foreach ( $switch[ $key ] as $subkey ) {
+					$action->post_content[ $key ] = $this->duplicate_array_walk( $action->post_content[ $key ], $subkey, $val );
+				}
+			}
+			
+			unset( $key, $val );
+		}
+		unset( $action->ID );
+		
+		return $this->save_settings( $action );
+	}
+	
+	private function duplicate_array_walk( $action, $subkey, $val ) {
+		global $frm_duplicate_ids;
+		
+		if ( is_array( $subkey ) ) {
+			foreach ( $subkey as $subkey2 ) {
+				foreach ( (array) $val as $ck => $cv ) {
+					if ( is_array( $cv ) ) {
+						$action[ $ck ] = $this->duplicate_array_walk( $action[ $ck ], $subkey2, $cv );
+					} else if ( isset( $cv[ $subkey ] ) && is_numeric( $cv[ $subkey ] ) && isset( $frm_duplicate_ids[ $cv[ $subkey ] ] ) ) {
+						$action[ $ck ][ $subkey ] = $frm_duplicate_ids[ $cv[ $subkey ] ];
+					}
+				}
+			}
+		} else {
+			foreach ( (array) $val as $ck => $cv ) {
+				if ( is_array( $cv ) ) {
+					$action[ $ck ] = $this->duplicate_array_walk( $action[ $ck ], $subkey, $cv );
+				} else if ( $ck == $subkey && isset( $frm_duplicate_ids[ $cv ] ) ) {
+					$action[ $ck ] = $frm_duplicate_ids[ $cv ];
+				}
+			}
+		}
+		
+		return $action;
+	}
+	
+	/**
+	 * Replace the id inside the action when import or duplicate the action
+	 *
+	 * @param $val
+	 *
+	 * @return array|mixed
+	 */
+	private function switch_field_ids( $val ) {
+		global $frm_duplicate_ids;
+		$replace      = array();
+		$replace_with = array();
+		foreach ( (array) $frm_duplicate_ids as $old => $new ) {
+			$replace[]      = '[' . $old . ']';
+			$replace_with[] = '[' . $new . ']';
+			$replace[]      = '[' . $old . ' ';
+			$replace_with[] = '[' . $new . ' ';
+			$replace[]      = '"Id":"' . $old . '"';
+			$replace_with[] = '"Id":"' . $new . '"';
+			unset( $old, $new );
+		}
+		if ( is_array( $val ) ) {
+			foreach ( $val as $k => $v ) {
+				$val[ $k ] = str_replace( $replace, $replace_with, $v );
+				unset( $k, $v );
+			}
+		} else {
+			$val = str_replace( $replace, $replace_with, $val );
+		}
+		
+		return $val;
 	}
 	
 	/**
@@ -537,7 +629,7 @@ class Formidable2RdbAction extends FrmFormAction {
 						if ( $event == "create" ) {
 							$this->rdb_instance->insert( $table_name, $push_data );
 						} else if ( $event == "update" ) {
-							$result = $this->rdb_instance->getMbd()->query("SELECT COUNT(*) FROM ".$table_name." WHERE entry_id = ". $entry->id )->fetchColumn(0);
+							$result = $this->rdb_instance->getMbd()->query( "SELECT COUNT(*) FROM " . $table_name . " WHERE entry_id = " . $entry->id )->fetchColumn( 0 );
 							if ( $result >= 1 ) {
 								$this->rdb_instance->update( $table_name, $push_data, $entry->id );
 							} else {
