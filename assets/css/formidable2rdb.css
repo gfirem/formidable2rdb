@@ -91,3 +91,6 @@ table.form-table.f2r_map_table.frm-no-margin {
     display: block;
     overflow-x: scroll;
 }
+.f2r_hidden_repeatable_section{
+    display: none;
+}

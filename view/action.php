@@ -67,10 +67,18 @@
 		if ( ! empty( $source_values ) ) {
 			$source_values = Formidable2mysqlColumnFactory::import_json( $source_values, true );
 		}
-		foreach ( $fields as $id => $f ):
-			
+		foreach ( $fields[ $main_form ] as $id => $f ):
 			if ( in_array( $f["type"], Formidable2RdbGeneric::exclude_fields() ) ) {
 				continue;
+			}
+			
+			$repeatable_content = false;
+			if ( $f["type"] == 'divider' ) {
+				if ( array_key_exists( intval( $f['id'] ), $fields ) ) {
+					$repeatable_content = true;
+				} else {
+					continue;
+				}
 			}
 			
 			$column_field_id   = $f["id"];
@@ -97,15 +105,17 @@
 					$is_not_null_value = "selected='selected'";
 				}
 			}
+			$string_type = ( $f["type"] == 'divider' ) ? 'Repeatable' : $f["type"];
 			?>
             <tr class="f2r_row">
                 <td class="f2r_table_field">
-                    <b><?php echo $f["name"] . " (" . $f["id"] . ")(" . $f["type"] . ")" ?></b>
+                    <b><?php echo $f["name"] . "<br/> (" . $f["id"] . ")(" . $string_type . ")" ?></b>
                     <input type="hidden" action_id="<?php echo $this->number ?>" class="f2r f2r_map_id f2r_map_option_<?php echo $this->number ?>" name="f2r_column_field_id_<?php echo $f["field_key"] ?>" id="f2r_column_field_id_<?php echo $f["field_key"] ?>" value="<?php echo "$column_field_id"; ?>">
                 </td>
                 <td class="f2r_table_enabled">
-                    <input <?php echo "$column_enabled"; ?> type="checkbox" action_id="<?php echo $this->number ?>" class="f2r f2r_map_enabled f2r_map_option_<?php echo $this->number ?>" name="f2r_map_enabled_<?php echo $f["field_key"] ?>" id="f2r_map_enabled_<?php echo $f["field_key"] ?>" value="1"/>
-                    <span class="frm_help_column_enabled frm_help frm_icon_font frm_tooltip_icon" id="frm_help_column_enabled_<?php echo $this->number ?>" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'When you save the form all the data in the column will be lost.' ); ?>"></span>
+                    <input <?php echo "$column_enabled"; ?> type="checkbox" action_id="<?php echo $this->number ?>" field_id="<?php echo $f["id"] ?>" class="f2r f2r_map_enabled f2r_map_option_<?php echo $this->number ?>" name="f2r_map_enabled_<?php echo $f["field_key"] ?>" id="f2r_map_enabled_<?php echo $f["field_key"] ?>" value="1"/>
+					<?php echo ( $repeatable_content ) ? '<a field_id="' . $f["id"] . '" id="f2r_show_repeatable_fields" class="f2r_show_repeatable_fields">' . Formidable2RdbManager::t( 'Inside Fields' ) . '</a>' : ''; ?>
+                    <span class="frm_help_column_enabled frm_help frm_icon_font frm_tooltip_icon" id="frm_help_column_enabled_<?php echo $f["id"] ?>" title="" data-original-title="<?php echo Formidable2RdbManager::t( 'When you save the form all the data in the column will be lost.' ); ?>"></span>
                 </td>
                 <td class="f2r_table_standard">
                     <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_name f2r_map_option_<?php echo $this->number ?>" name="f2r_column_name_<?php echo $f["field_key"] ?>" id="f2r_column_name_<?php echo $f["field_key"] ?>" value="<?php echo "$column_name"; ?>">
@@ -140,6 +150,22 @@
                     </select>
                 </td>
             </tr>
+			<?php if ( ! empty( $repeatable_content ) ) : ?>
+            <tr id="f2r_hidden_repeatable_section_<?php echo $f['id'] ?>" class="f2r_hidden_repeatable_section">
+                <td></td>
+                <td colspan="6">
+                    <p><?php echo Formidable2RdbManager::t( ' The value of the fields inside this repeatable section will store as json inside this column.' ); ?></p>
+                    <b><?php echo Formidable2RdbManager::t( 'Fields:' ); ?></b><br/>
+                    <ul>
+						<?php
+						foreach ( $fields[ $f['id'] ] as $rid => $rf ) {
+							echo '<li>' . $rf["name"] . ' (' . $rf['id'] . ')(' . $rf['type'] . ')</li>';
+						}
+						?>
+                    </ul>
+                </td>
+            </tr>
+		<?php endif; ?>
 		<?php endforeach; ?>
         <tr>
             <td colspan="7">

@@ -157,11 +157,22 @@ jQuery(document).ready(function ($) {
 			});
 
 			$(".f2r_map_enabled").click(function () {
-				var action_id = $(this).attr("action_id");
+				var field_id = $(this).attr("field_id"),
+					help_tooltip = $("#frm_help_column_enabled_" + field_id);
 				if (!$(this).is(':checked')) {
-					$("#frm_help_column_enabled_" + action_id).show();
+					help_tooltip.show();
 				} else {
-					$("#frm_help_column_enabled_" + action_id).hide();
+					help_tooltip.hide();
+				}
+			});
+
+			$(".f2r_show_repeatable_fields").click(function () {
+				var field_id = $(this).attr("field_id"),
+					section = $('#f2r_hidden_repeatable_section_'+field_id);
+				if (!section.is(':visible')) {
+					section.show();
+				} else {
+					section.hide();
 				}
 			});
 

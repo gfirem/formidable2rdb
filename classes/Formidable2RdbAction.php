@@ -608,20 +608,36 @@ class Formidable2RdbAction extends FrmFormAction {
 					$this->create_table_into_rdb( $action->ID, $table_name, $action->post_content["f2r_table_name"], $site_id, $map_to_rdb );
 				}
 				
+				$repeat_fields         = FrmProFormsHelper::has_repeat_field( $form->id, false );
+				$existing_repeat_field = array();
+				foreach ( $repeat_fields as $id => $field ) {
+					$existing_repeat_field[] = $field->id;
+				}
+				
 				if ( $event != "delete" ) {
 					if ( ! empty( $entry->metas ) ) {
 						$push_data               = array();
 						$push_data["created_at"] = date( "Y-m-d H:i:s" );
 						$push_data["entry_id"]   = $entry->id;
 						foreach ( $map_to_rdb as $map_key => $map_data ) {
-							//TODO improve the data cast to push into the rdb
-							$value = $entry->metas[ $map_key ];
-							if ( is_string( $value ) ) {
-								$value = sanitize_text_field( $value );
-							} else if ( is_numeric( $value ) ) {
-								$value = intval( $value );
-							} else if ( is_array( $value ) ) {
-								$value = sanitize_text_field( implode( ", ", $value ) );
+							if ( in_array( $map_key, $existing_repeat_field ) ) {
+								$external_val = array();
+								if ( is_array( $entry->metas[ $map_key ] ) ) {
+									foreach ( $entry->metas[ $map_key ] as $external_meta_id ) {
+										$sub_entry = FrmEntry::getOne( $external_meta_id, true );
+										foreach ( $sub_entry->metas as $sm_id => $sm_data ) {
+											$field_name                                  = FrmField::get_type( $sm_id, 'name' );
+											$external_val[ $external_meta_id ][ $sm_id ] = $this->cast_value( $sm_data );
+										}
+									}
+								}
+								$value = json_encode( $external_val );
+							} else {
+								if ( isset( $entry->metas[ $map_key ] ) ) {
+									$value = $this->cast_value( $entry->metas[ $map_key ] );
+								} else {
+									$value = '';
+								}
 							}
 							$push_data[ $map_data->Field ] = $value;
 						}
@@ -646,6 +662,19 @@ class Formidable2RdbAction extends FrmFormAction {
 		} catch ( Exception $ex ) {
 			Formidable2RdbManager::handle_exception( $ex->getMessage() );
 		}
+	}
+	
+	public function cast_value( $value ) {
+		//TODO improve the data cast to push into the rdb
+		if ( is_string( $value ) ) {
+			$value = sanitize_text_field( $value );
+		} else if ( is_numeric( $value ) ) {
+			$value = intval( $value );
+		} else if ( is_array( $value ) ) {
+			$value = sanitize_text_field( implode( ", ", $value ) );
+		}
+        
+		return $value;
 	}
 	
 	/**
@@ -730,9 +759,24 @@ class Formidable2RdbAction extends FrmFormAction {
 			global $wpdb;
 			extract( $args );
 			$form           = $args['form'];
-			$fields         = $args['values']['fields'];
+			$bulk_fields    = $args['values']['fields'];
 			$action_control = $this;
+			$main_form      = $form->id;
 			
+			$repeat_fields         = FrmProFormsHelper::has_repeat_field( $main_form, false );
+			$existing_repeat_field = array();
+			foreach ( $repeat_fields as $id => $field ) {
+				$existing_repeat_field[] = $field->id;
+			}
+			
+			$fields = array();
+			foreach ( $bulk_fields as $id => $f ) {//Process fields
+				if ( ! empty( $existing_repeat_field ) && ! empty( $f['in_section'] ) && in_array( $f['in_section'], $existing_repeat_field ) ) {
+					$fields[ $f['in_section'] ][] = $f;
+				} else {
+					$fields[ $main_form ][] = $f;
+				}
+			}
 			$form_action->post_content["f2r_old_table_name"]   = $form_action->post_content["f2r_table_name"];
 			$form_action->post_content["f2r_old_mapped_field"] = $form_action->post_content["f2r_mapped_field"];
 			

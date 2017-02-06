@@ -284,6 +284,7 @@ class Formidable2RdbGeneric {
 			'html'     => array( $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext ),
 			'tag'      => array_merge( $text_group, $int_group ),
 			'address'  => array( $varchar, $longtext ),
+			'divider'  => array( $longtext ),
 		) );
 	}
 	
@@ -330,7 +331,6 @@ class Formidable2RdbGeneric {
 		return apply_filters( "formidable2rdb_exclude_fields",
 			array(
 				"captcha",
-				"divider",
 				"end_divider",
 				"break",
 				"form",
