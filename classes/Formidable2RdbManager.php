@@ -81,7 +81,7 @@ class Formidable2RdbManager {
 				'type'                => 'plugin',
 				'public_key'          => 'pk_dc6ce49acae620ba0bc501baaebe6',
 				'is_premium'          => true,
-				'has_premium_version' => false,
+				'is_premium_only'     => true,
 				'has_addons'          => false,
 				'has_paid_plans'      => true,
 				'is_org_compliant'    => false,

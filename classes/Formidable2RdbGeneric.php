@@ -21,13 +21,16 @@ class Formidable2RdbGeneric {
 		add_action( 'fs_plugin_icon_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_plugin_ico' ), 10, 1 );
 		
 	}
-	public function handle_plugin_ico($ico_path){
-		return F2M_URLPATH.'icon-24.png';
+	
+	public function handle_plugin_ico( $ico_path ) {
+		return Formidable2RdbManager::getSlug() . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'icon-24.png';
 	}
-	public function handle_sub_menu($is_visible, $menu_id){
+	
+	public function handle_sub_menu( $is_visible, $menu_id ) {
 		if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() != BLOG_ID_CURRENT_SITE ) {
 			$is_visible = false;
 		}
+		
 		return $is_visible;
 	}
 	
