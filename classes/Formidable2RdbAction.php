@@ -626,8 +626,8 @@ class Formidable2RdbAction extends FrmFormAction {
 									foreach ( $entry->metas[ $map_key ] as $external_meta_id ) {
 										$sub_entry = FrmEntry::getOne( $external_meta_id, true );
 										foreach ( $sub_entry->metas as $sm_id => $sm_data ) {
-											$field_name                                  = FrmField::get_type( $sm_id, 'name' );
-											$external_val[ $external_meta_id ][ $sm_id ] = $this->cast_value( $sm_data );
+											$field_key                                  = FrmField::get_type( $sm_id, 'field_key' );
+											$external_val[ $external_meta_id ][ $field_key ] = $this->cast_value( $sm_data );
 										}
 									}
 								}
