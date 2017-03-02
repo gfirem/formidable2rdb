@@ -4,7 +4,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Formidable2Rdb
- * Description:       Formidable action to push data to Relational Data Base.
+ * Description:       Formidable action to push data to MySQL Table.
  * Version:           1.2.0
  * Author:            gfirem
  * License:           Apache License 2.0

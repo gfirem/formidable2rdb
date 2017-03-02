@@ -6911,6 +6911,10 @@
 		}
 		
 		/**
+         * Register a site to existing user and licence.
+         *
+         * @autor GFireM
+         *
 		 * @param FS_User $user
 		 * @param bool $license_key
 		 *

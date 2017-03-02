@@ -5,7 +5,7 @@
 <h3 id="f2r_section"><?php echo Formidable2RdbManager::t( ' Table configuration ' ) ?></h3>
 <span><?php echo Formidable2RdbManager::t( "Changes are applied when the form is updated." ); ?></span>
 <hr/>
-<table class="form-table frm-no-margin" _>
+<table class="form-table frm-no-margin">
     <tbody id="f2r-table-body">
     <tr>
         <th>
