@@ -1,0 +1,421 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Formidable2Rdb\n"
+"POT-Creation-Date: 2017-03-10 01:57-0400\n"
+"PO-Revision-Date: 2017-03-10 01:57-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: formidable2rdb.php\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: t\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: classes/Formidable2RdbAction.php:290
+#, php-format
+msgid ""
+"The field(s) %s was change to generic type, please customize in the action."
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:26
+msgid "<b>User</b>"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:27
+msgid "<b>Password</b>"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:28
+msgid "<b>Host</b>"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:29
+msgid "<b>DB Name</b>"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+#: classes/Formidable2RdbAdminView.php:131
+msgid "Formidable2Rdb"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:161
+#: classes/Formidable2RdbAdminView.php:162
+#: classes/Formidable2RdbAdminView.php:163
+#: classes/Formidable2RdbAdminView.php:216
+#: classes/Formidable2RdbAdminView.php:418
+msgid "Table: "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:217
+msgid "Columns <b>rdb_id, create, entry_id</b> belong to the system."
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:239
+msgid "Not table detected."
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:255
+msgid "Version: "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:256
+msgid "Order key: "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:257
+msgid "Key status: "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:262
+msgid "<b>Enable Debug Mode</b>"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:264
+msgid "Connection Data"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:272
+msgid "Tables overview"
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:324
+msgid ""
+"By default the Formidable2Rdb use the WP credential to connect to the "
+"database. In case of error with the provided credential the system keep "
+"using it."
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:388
+msgid "Show each table specification."
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:419
+msgid "With columns: "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:421
+msgid "<b>Name:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:421
+msgid "<b>Type:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:422
+msgid "<b>Null:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:425
+msgid "<b>Extra:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:429
+msgid "<b>Key:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbAdminView.php:433
+msgid "<b>Default:</b> "
+msgstr ""
+
+#: classes/Formidable2RdbCore.php:90
+msgid ""
+"Formidable2Rdb::Exist error with the provided credential, the system keep "
+"using the wp credential."
+msgstr ""
+
+#: classes/Formidable2RdbDataTable.php:21
+msgid "Table"
+msgstr ""
+
+#: classes/Formidable2RdbDataTable.php:22
+msgid "Tables"
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:71
+msgid "Please provide the name for the table."
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:72
+msgid "Error, please contact the admin."
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:73
+msgid "Already exist a table with the provided name."
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:75
+msgid "FAIL!"
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:76
+msgid "Invalid Credential, please review it."
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:110
+msgid "Settings"
+msgstr ""
+
+#: classes/Formidable2RdbGeneric.php:149
+msgid "Select type"
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:44
+msgid "Error creating the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:68
+msgid "Error when drop the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:89
+msgid "Error renaming the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:110
+msgid "Error adding columns to the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:131
+msgid "Error when alter columns."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:168
+msgid "Error when drop column(s)."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:254
+msgid "Error inserting data to the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:276
+msgid "Error updating data into the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:292
+msgid "Error checking entry into the table."
+msgstr ""
+
+#: classes/core/Formidable2mysql.php:313
+msgid "Error deleting data into the table."
+msgstr ""
+
+#: view/action.php:5
+msgid " Table configuration "
+msgstr ""
+
+#: view/action.php:6
+msgid "Changes are applied when the form is updated."
+msgstr ""
+
+#: view/action.php:13
+msgid " Table Name: "
+msgstr ""
+
+#: view/action.php:14
+msgid ""
+"Create a name for your table here. When you update the form, it will be "
+"created in the DB for you and you can change the name later."
+msgstr ""
+
+#: view/action.php:19
+msgid " Result table name: "
+msgstr ""
+
+#: view/action.php:21
+msgid " Check if exist "
+msgstr ""
+
+#: view/action.php:29
+msgid " Map field to Database column "
+msgstr ""
+
+#: view/action.php:35
+msgid " Field Name: "
+msgstr ""
+
+#: view/action.php:36
+msgid ""
+"The field name used in the form. It includes the id and the type of the "
+"field for reference."
+msgstr ""
+
+#: view/action.php:39
+msgid " Enabled: "
+msgstr ""
+
+#: view/action.php:40
+msgid ""
+"When checked, this field will be mapped to the column in the DB table. If "
+"unchecked in later edits, the column will be dropped and the data will be "
+"lost."
+msgstr ""
+
+#: view/action.php:43
+msgid " Column Name: "
+msgstr ""
+
+#: view/action.php:44
+msgid ""
+"The name for the column in the DB. It accepts only letters, numbers and "
+"underscores."
+msgstr ""
+
+#: view/action.php:47
+msgid " Column Default: "
+msgstr ""
+
+#: view/action.php:48
+msgid ""
+"The default value to be saved to the DB table when this form is submitted."
+msgstr ""
+
+#: view/action.php:51
+msgid " Column Type: "
+msgstr ""
+
+#: view/action.php:52
+msgid ""
+"The format of the data stored in this column. Base this on what type of "
+"field is being used to create the data."
+msgstr ""
+
+#: view/action.php:55
+msgid " Length/Precision: "
+msgstr ""
+
+#: view/action.php:56
+msgid ""
+"The length of the field in characters and when applicable, the precision of "
+"a numeric field in decimal places."
+msgstr ""
+
+#: view/action.php:59
+msgid " Null: "
+msgstr ""
+
+#: view/action.php:60
+msgid "Whether the column will accept null values."
+msgstr ""
+
+#: view/action.php:117
+msgid "Inside Fields"
+msgstr ""
+
+#: view/action.php:118
+msgid "When you save the form all the data in the column will be lost."
+msgstr ""
+
+#: view/action.php:148
+msgid " YES "
+msgstr ""
+
+#: view/action.php:149
+msgid " NO "
+msgstr ""
+
+#: view/action.php:157
+msgid ""
+" The value of the fields inside this repeatable section will store as json "
+"inside this column."
+msgstr ""
+
+#: view/action.php:158
+msgid "Fields:"
+msgstr ""
+
+#: view/action.php:178
+msgid ""
+"Select when to trigger the action  - when an entry is created, updated, "
+"deleted or imported."
+msgstr ""
+
+#: view/admin.php:2
+msgid "Formidable2Rdb Settings"
+msgstr ""
+
+#: view/credential.php:2
+msgid "Server Credential"
+msgstr ""
+
+#: view/credential.php:6
+msgid "Use installation credential: "
+msgstr ""
+
+#: view/credential.php:7
+msgid ""
+" If you check this option, the system not take in count the next credential "
+"and disable the credential in the action."
+msgstr ""
+
+#: view/credential.php:12
+msgid "Api key: "
+msgstr ""
+
+#: view/credential.php:17
+msgid "Secret key: "
+msgstr ""
+
+#: view/credential.php:23
+msgid "Status refresh time: "
+msgstr ""
+
+#: view/credential.php:27
+msgid ""
+"Time in minutes. The system use to monitor the time between calls to MailJet "
+"server to maintain an internal cache system "
+msgstr ""
+
+#: view/field_options.php:8
+msgid "Formidable2Rdb Map Data"
+msgstr ""
+
+#: view/field_options.php:15
+msgid "Name:"
+msgstr ""
+
+#: view/field_options.php:16
+msgid "Default:"
+msgstr ""
+
+#: view/field_options.php:17
+msgid "Type:"
+msgstr ""
+
+#: view/field_options.php:18
+msgid "Length:"
+msgstr ""
+
+#: view/field_options.php:19
+msgid "Precision:"
+msgstr ""
+
+#: view/field_options.php:20
+msgid "Is Null:"
+msgstr ""
+
+#: view/options.php:4
+msgid "Field capabilities"
+msgstr ""
+
+#: view/options.php:10
+msgid "Lock field options"
+msgstr ""
+
+#: view/options.php:18
+msgid "Lock Message"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Formidable action to push data to MySQL Table."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "gfirem"
+msgstr ""

@@ -7,77 +7,10 @@ class Formidable2RdbGeneric {
 	
 	function __construct() {
 		add_filter( F2M_PREFIX . 'plugin_action_links_' . F2M_BASE_NAME, array( $this, 'add_formidable_key_field_setting_link' ), 9, 2 );
-		
 		add_action( 'admin_footer', array( $this, 'enqueue_js' ) );
 		add_action( 'wp_footer', array( $this, 'enqueue_js' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		
-		add_action( 'fs_before_admin_menu_init_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_freemius_activation' ) );
-		add_action( 'fs_after_account_connection_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_site_activation' ), 10, 2 );
-		add_action( 'fs_after_account_delete_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_site_deactivation' ) );
-		add_action( 'fs_after_uninstall_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_site_deactivation' ) );
-		add_action( 'fs_is_submenu_visible_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_sub_menu' ), 10, 2 );
-		add_action( 'fs_plugin_icon_' . Formidable2RdbManager::getSlug(), array( $this, 'handle_plugin_ico' ), 10, 1 );
-		
-	}
-	
-	public function handle_plugin_ico( $ico_path ) {
-		return Formidable2RdbManager::getSlug() . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'icon-24.png';
-	}
-	
-	public function handle_sub_menu( $is_visible, $menu_id ) {
-		if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() != BLOG_ID_CURRENT_SITE ) {
-			$is_visible = false;
-		}
-		
-		return $is_visible;
-	}
-	
-	public function handle_site_deactivation() {
-		$this->delete_license_option();
-	}
-	
-	public function handle_site_activation( $user, $site ) {
-		if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() == BLOG_ID_CURRENT_SITE ) {
-			$free = freemius( Formidable2RdbManager::getSlug() );
-			if ( is_numeric( $site->license_id ) ) {
-				$license = $free->_get_license_by_id( $site->license_id );
-				if ( $license !== false && empty( $license->quota ) ) {//Hay que garantizar que esto solo se ejecute dentro del sitio principal
-					$this->update_license_option( array( 'key' => $license, 'user' => $user, 'site' => $site ) );
-				}
-			}
-		}
-	}
-	
-	
-	public function handle_freemius_activation() {
-		if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() != BLOG_ID_CURRENT_SITE ) {
-			$free         = freemius( Formidable2RdbManager::getSlug() );
-			$license_data = $this->get_license_option();
-			if ( ! empty( $license_data['key'] ) && ! empty( $license_data['user'] ) && ! empty( $license_data['site'] ) ) {
-//				if ( $free->is_pending_activation() ) {
-				if ( ! $free->is_paying() && ! $free->has_active_valid_license() && is_multisite() && empty( $license_data['key']->quota ) ) {
-					$t = 00;
-//					$r = $free->opt_in( $license_data['user']->email, $license_data['user']->first, $license_data['user']->last, $license_data['key'] );
-					
-					$free->opt_in_from_code( $license_data['user'], $license_data['key']->secret_key );
-				}
-//				}
-			}
-		}
-	}
-	
-	public function get_license_option() {
-		return maybe_unserialize( get_site_option( Formidable2RdbManager::getSlug() . '_license' ) );
-	}
-	
-	public function update_license_option( $license_data ) {
-		return update_site_option( Formidable2RdbManager::getSlug() . '_license', maybe_serialize( $license_data ) );
-	}
-	
-	public function delete_license_option() {
-		return delete_site_option( Formidable2RdbManager::getSlug() . '_license' );
 	}
 	
 	/**

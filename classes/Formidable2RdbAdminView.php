@@ -16,28 +16,30 @@ class Formidable2RdbAdminView {
 //		} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 //		}
-		add_action( 'admin_init', array( $this, 'register_admin_settings' ) );
-		
-		add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
-		add_action( "wp_ajax_test_credential", array( $this, "test_credential" ) );
-		
-		self::$credentials = array(
-			"connection_user"    => Formidable2RdbManager::t( '<b>User</b>' ),
-			"connection_pass"    => Formidable2RdbManager::t( '<b>Password</b>' ),
-			"connection_host"    => Formidable2RdbManager::t( '<b>Host</b>' ),
-			"connection_db_name" => Formidable2RdbManager::t( '<b>DB Name</b>' )
-		);
-		
-		try {
+		if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+			add_action( 'admin_init', array( $this, 'register_admin_settings' ) );
 			
-			$rdb_core = new Formidable2RdbCore();
+			add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
+			add_action( "wp_ajax_test_credential", array( $this, "test_credential" ) );
 			
-			$this->rdb_instance = $rdb_core->getHandler();
+			self::$credentials = array(
+				"connection_user"    => Formidable2RdbManager::t( '<b>User</b>' ),
+				"connection_pass"    => Formidable2RdbManager::t( '<b>Password</b>' ),
+				"connection_host"    => Formidable2RdbManager::t( '<b>Host</b>' ),
+				"connection_db_name" => Formidable2RdbManager::t( '<b>DB Name</b>' )
+			);
 			
-		} catch ( Formidable2RdbException $ex ) {
-			Formidable2RdbManager::handle_exception( $ex->getMessage(), $ex->getBody() );
-		} catch ( Exception $ex ) {
-			Formidable2RdbManager::handle_exception( $ex->getMessage() );
+			try {
+				
+				$rdb_core = new Formidable2RdbCore();
+				
+				$this->rdb_instance = $rdb_core->getHandler();
+				
+			} catch ( Formidable2RdbException $ex ) {
+				Formidable2RdbManager::handle_exception( $ex->getMessage(), $ex->getBody() );
+			} catch ( Exception $ex ) {
+				Formidable2RdbManager::handle_exception( $ex->getMessage() );
+			}
 		}
 	}
 	
@@ -148,26 +150,28 @@ class Formidable2RdbAdminView {
 	 */
 	public function admin_menu() {
 		$this->create_main_menu( 'menu_manage' );
-		try {
-			//Add a sub page for each table in the system if a single site
-			if ( ! is_network_admin() ) {
-				if ( ! empty( $this->rdb_instance ) ) {
-					$tables = Formidable2RdbTrackTables::get_tables( get_current_blog_id() );
-					foreach ( $tables as $table ) {
-						if ( $this->rdb_instance->exist_table( $table["full_table"] ) ) {
-							$menu_name_raw = Formidable2RdbManager::t( "Table: " ) . $table["table"];
-							$menu_name     = ( strlen( $menu_name_raw > 15 ) ) ? trim( substr( Formidable2RdbManager::t( "Table: " ) . $table["table"], 0, 12 ) ) . "..." : $menu_name_raw;
-							add_submenu_page( Formidable2RdbManager::getSlug(), Formidable2RdbManager::t( "Table: " ) . $table["table"], $menu_name, 'manage_options', Formidable2RdbManager::getSlug() . '_' . strtolower( $table["full_table"] ), array( $this, 'show_table' ) );
-						} else {
-							Formidable2RdbTrackTables::delete_table( $table["full_table"], "full_table" );
+		if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+			try {
+				//Add a sub page for each table in the system if a single site
+				if ( ! is_network_admin() ) {
+					if ( ! empty( $this->rdb_instance ) ) {
+						$tables = Formidable2RdbTrackTables::get_tables( get_current_blog_id() );
+						foreach ( $tables as $table ) {
+							if ( $this->rdb_instance->exist_table( $table["full_table"] ) ) {
+								$menu_name_raw = Formidable2RdbManager::t( "Table: " ) . $table["table"];
+								$menu_name     = ( strlen( $menu_name_raw > 15 ) ) ? trim( substr( Formidable2RdbManager::t( "Table: " ) . $table["table"], 0, 12 ) ) . "..." : $menu_name_raw;
+								add_submenu_page( Formidable2RdbManager::getSlug(), Formidable2RdbManager::t( "Table: " ) . $table["table"], $menu_name, 'manage_options', Formidable2RdbManager::getSlug() . '_' . strtolower( $table["full_table"] ), array( $this, 'show_table' ) );
+							} else {
+								Formidable2RdbTrackTables::delete_table( $table["full_table"], "full_table" );
+							}
 						}
 					}
 				}
+			} catch ( Formidable2RdbException $ex ) {
+				Formidable2RdbManager::handle_exception( $ex->getMessage(), $ex->getBody() );
+			} catch ( Exception $ex ) {
+				Formidable2RdbManager::handle_exception( $ex->getMessage() );
 			}
-		} catch ( Formidable2RdbException $ex ) {
-			Formidable2RdbManager::handle_exception( $ex->getMessage(), $ex->getBody() );
-		} catch ( Exception $ex ) {
-			Formidable2RdbManager::handle_exception( $ex->getMessage() );
 		}
 	}
 	

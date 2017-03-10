@@ -23,6 +23,9 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 		session_start();
 	}
 	
+	require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Formidable2RdbFreemius.php';
+	Formidable2RdbFreemius::start_freemius();
+	
 	class Formidable2Rdb {
 		
 		/**

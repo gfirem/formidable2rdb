@@ -5,49 +5,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Formidable2RdbManager {
 	
-	private static $plugin_slug;
+	private static $plugin_slug = 'formidable2rdb';
 	private static $plugin_short = 'Formidable2Rdb';
-	protected static $version;
-	protected static $api_url = 'http://www.gfirem.com/woo-software-license/index.php';
-	protected static $instance = 'http://www.gfirem.com/woo-software-license/index.php';
+	protected static $version = '1.2.0';
 	
 	public function __construct() {
-		self::$plugin_slug = 'formidable2rdb';
-		self::$version     = '1.2.0';
-		self::$instance    = str_replace( array( "https://", "http://" ), "", network_site_url() );
-		
 		try {
 			require_once 'class-tgm-plugin-activation.php';
 			require_once 'Formidable2RdbRequired.php';
 			new Formidable2RdbRequired();
-			$this->for_fs();
-			if ( self::is_formidable_active() ) {
+			
+			if ( self::is_formidable_active() && self::self_activated()) {
 				
 				require_once 'model/Formidable2RdbColumnType.php';
 				require_once 'Formidable2RdbLog.php';
 				new Formidable2RdbLog();
 				
-				require_once 'Formidable2RdbGeneric.php';
-				new Formidable2RdbGeneric();
-				
-				require_once 'core/TreeWalker.php';
-				require_once "Formidable2RdbException.php";
-				require_once 'Formidable2RdbCore.php';
-				
-				require_once 'class-wp-list-table.php';
-				require_once 'Formidable2RdbDataTable.php';
-				
-				require_once 'Formidable2RdbFieldOptions.php';
-				new Formidable2RdbFieldOptions();
-				
+				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+					require_once 'Formidable2RdbGeneric.php';
+					new Formidable2RdbGeneric();
+					
+					require_once 'core/TreeWalker.php';
+					require_once "Formidable2RdbException.php";
+					require_once 'Formidable2RdbCore.php';
+					
+					require_once 'class-wp-list-table.php';
+					require_once 'Formidable2RdbDataTable.php';
+					
+					require_once 'Formidable2RdbFieldOptions.php';
+					new Formidable2RdbFieldOptions();
+				}
 				require_once 'Formidable2RdbAdminView.php';
 				new Formidable2RdbAdminView();
 				
-				
-				require_once 'Formidable2RdbTrackTables.php';
-				new Formidable2RdbTrackTables();
-				
-				add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
+				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+					require_once 'Formidable2RdbTrackTables.php';
+					new Formidable2RdbTrackTables();
+					
+					add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
+				}
 			}
 		} catch ( Exception $ex ) {
 			Formidable2RdbGeneric::setMessage( array(
@@ -67,6 +63,12 @@ class Formidable2RdbManager {
 		return is_plugin_active( 'formidable/formidable.php' );
 	}
 	
+	public static function self_activated() {
+		self::load_plugins_dependency();
+		
+		return is_plugin_active( 'formidable2rdb/formidable2rdb.php' );
+	}
+	
 	public function for_fs() {
 		/** @var Freemius $for_fs */
 		global $for_fs;
@@ -76,23 +78,23 @@ class Formidable2RdbManager {
 			require_once dirname( __FILE__ ) . '/freemius/start.php';
 			
 			$for_fs = fs_dynamic_init( array(
-				'id'                  => '723',
-				'slug'                => 'formidable2rdb',
-				'type'                => 'plugin',
-				'public_key'          => 'pk_dc6ce49acae620ba0bc501baaebe6',
-				'is_premium'          => true,
-				'is_premium_only'     => true,
-				'has_addons'          => false,
-				'has_paid_plans'      => true,
-				'is_org_compliant'    => false,
-				'menu'                => array(
+				'id'               => '723',
+				'slug'             => 'formidable2rdb',
+				'type'             => 'plugin',
+				'public_key'       => 'pk_dc6ce49acae620ba0bc501baaebe6',
+				'is_premium'       => true,
+				'is_premium_only'  => true,
+				'has_addons'       => false,
+				'has_paid_plans'   => true,
+				'is_org_compliant' => false,
+				'menu'             => array(
 					'slug'       => 'formidable2rdb',
 					'first-path' => 'admin.php?page=formidable2rdb',
 					'support'    => false,
 				),
 				// Set the SDK to work in a sandbox mode (for development & testing).
 				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
-				'secret_key'          => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
+				'secret_key'       => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
 			) );
 		}
 		
@@ -123,14 +125,6 @@ class Formidable2RdbManager {
 	
 	static function getSlug() {
 		return self::$plugin_slug;
-	}
-	
-	static function getApi() {
-		return self::$api_url;
-	}
-	
-	static function getInstance() {
-		return self::$instance;
 	}
 	
 	/**
