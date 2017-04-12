@@ -81,7 +81,7 @@ class Formidable2RdbCore {
 								"dbname" => $general_option['connection_db_name'],
 								"user"   => $general_option['connection_user'],
 								"pass"   => isset( $general_option['connection_pass'] ) ? $general_option['connection_pass'] : "",
-								"debug"  => $this->debug,
+								"debug"  => ! empty( $general_option['debug_data'] ) ? true : false,
 							);
 						} else {
 							//In case of error the system use WP connection data
