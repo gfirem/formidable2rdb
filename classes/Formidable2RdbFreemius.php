@@ -116,11 +116,10 @@ class Formidable2RdbFreemius {
 					'first-path' => 'admin.php?page=formidable2rdb',
 					'support'    => false,
 				),
-				// Set the SDK to work in a sandbox mode (for development & testing).
-				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
-				'secret_key'          => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
 			) );
 		}
+		
+		self::process_multi_site();
 		
 		return $formidable2rdb_fs;
 	}

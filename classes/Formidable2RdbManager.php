@@ -15,7 +15,7 @@ class Formidable2RdbManager {
 			require_once 'Formidable2RdbRequired.php';
 			new Formidable2RdbRequired();
 			
-			if ( self::is_formidable_active() && self::self_activated()) {
+			if ( self::is_formidable_active()) {
 				
 				require_once 'model/Formidable2RdbColumnType.php';
 				require_once 'Formidable2RdbLog.php';
@@ -61,44 +61,6 @@ class Formidable2RdbManager {
 		self::load_plugins_dependency();
 		
 		return is_plugin_active( 'formidable/formidable.php' );
-	}
-	
-	public static function self_activated() {
-		self::load_plugins_dependency();
-		
-		return is_plugin_active( 'formidable2rdb/formidable2rdb.php' );
-	}
-	
-	public function for_fs() {
-		/** @var Freemius $for_fs */
-		global $for_fs;
-		
-		if ( ! isset( $for_fs ) ) {
-			// Include Freemius SDK.
-			require_once dirname( __FILE__ ) . '/freemius/start.php';
-			
-			$for_fs = fs_dynamic_init( array(
-				'id'               => '723',
-				'slug'             => 'formidable2rdb',
-				'type'             => 'plugin',
-				'public_key'       => 'pk_dc6ce49acae620ba0bc501baaebe6',
-				'is_premium'       => true,
-				'is_premium_only'  => true,
-				'has_addons'       => false,
-				'has_paid_plans'   => true,
-				'is_org_compliant' => false,
-				'menu'             => array(
-					'slug'       => 'formidable2rdb',
-					'first-path' => 'admin.php?page=formidable2rdb',
-					'support'    => false,
-				),
-				// Set the SDK to work in a sandbox mode (for development & testing).
-				// IMPORTANT: MAKE SURE TO REMOVE SECRET KEY BEFORE DEPLOYMENT.
-				'secret_key'       => 'sk_{w=^Dogkm9ou=Derl#t]$luqo6Y2o',
-			) );
-		}
-		
-		return $for_fs;
 	}
 	
 	/**

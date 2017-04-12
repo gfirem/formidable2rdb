@@ -419,6 +419,7 @@ class Formidable2RdbAction extends FrmFormAction {
 			if ( ! empty( $mapped_to_rdb ) ) {
 				if ( ! $this->rdb_instance->exist_table( $full_table_name ) ) {
 					$this->create_table_into_rdb( $action_id, $full_table_name, $table_name, $site_id, $mapped_to_rdb );
+					//TODO update the fields options
 				} else {
 					if ( ! empty( $post_content["f2r_old_mapped_field"] ) ) {//detect changes into the mapped fields
 						$old_mapped_to_rdb = Formidable2mysqlColumnFactory::import_json( $post_content["f2r_old_mapped_field"], $raw );
