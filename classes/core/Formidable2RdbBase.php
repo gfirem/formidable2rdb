@@ -58,7 +58,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					}
 					$column_string = implode( ", ", $columns );
 					$data_string   = implode( ", ", $data );
-					$sql           = "INSERT INTO `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` (`" . $column_string . "`) VALUES (" . $data_string . ")";
+					$sql           = "INSERT INTO `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` (" . $column_string . ") VALUES (" . $data_string . ")";
 					
 				}
 				break;
