@@ -5,7 +5,7 @@
  * @wordpress-plugin
  * Plugin Name:       Formidable2Rdb
  * Description:       Formidable action to push data to MySQL Table.
- * Version:           1.2.2
+ * Version:           1.2.4
  * Author:            gfirem
  * License:           Apache License 2.0
  * License URI:       http://www.apache.org/licenses/
@@ -17,24 +17,24 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 if ( ! class_exists( 'Formidable2Rdb' ) ) :
-	
+
 	$sid = session_id();
 	if ( empty( $sid ) ) {
 		session_start();
 	}
-	
+
 	require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Formidable2RdbFreemius.php';
 	Formidable2RdbFreemius::start_freemius();
-	
+
 	class Formidable2Rdb {
-		
+
 		/**
 		 * Instance of this class.
 		 *
 		 * @var object
 		 */
 		protected static $instance = null;
-		
+
 		/**
 		 * Initialize the plugin.
 		 */
@@ -51,11 +51,11 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 			define( 'F2M_CLASS_PATH', F2M_ABSPATH . 'classes/' );
 			define( 'F2M_WOOSL_PATH', F2M_CLASS_PATH . 'wooslt/' );
 			$this->load_plugin_textdomain();
-			
+
 			require_once F2M_CLASS_PATH . 'Formidable2RdbManager.php';
 			new Formidable2RdbManager();
 		}
-		
+
 		/**
 		 * Return an instance of this class.
 		 *
@@ -66,19 +66,19 @@ if ( ! class_exists( 'Formidable2Rdb' ) ) :
 			if ( null == self::$instance ) {
 				self::$instance = new self;
 			}
-			
+
 			return self::$instance;
 		}
-		
+
 		/**
 		 * Load the plugin text domain for translation.
 		 */
 		public function load_plugin_textdomain() {
 			load_plugin_textdomain( 'formidable2rdb', false, basename( dirname( __FILE__ ) ) . '/languages' );
 		}
-		
+
 	}
-	
+
 	add_action( 'plugins_loaded', array( 'Formidable2Rdb', 'get_instance' ) );
 
 endif;

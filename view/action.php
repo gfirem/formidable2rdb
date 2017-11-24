@@ -208,22 +208,24 @@
 			}).get();
 
 			var json = JSON.stringify(action_fields);
-			mapped_field.val(json);
-			if (!mapped_old_field.val()) {
-				mapped_old_field.val(json);
-			}
+			if(mapped_field) {
+                mapped_field.val(json);
+                if (!mapped_old_field.val()) {
+                    mapped_old_field.val(json);
+                }
 
-			if (!mapped_old_table_name.val()) {
-				mapped_old_table_name.val(mapped_table_name.val());
-			}
+                if (!mapped_old_table_name.val()) {
+                    mapped_old_table_name.val(mapped_table_name.val());
+                }
 
-			if (!mapped_table_name.val()) {
-				e.preventDefault();
-				mapped_table_name.addClass("f2r_error");
-				alert(formidable2rdb.table_name_required);
-			} else {
-				mapped_table_name.removeClass("f2r_error");
-			}
+                if (!mapped_table_name.val()) {
+                    e.preventDefault();
+                    mapped_table_name.addClass("f2r_error");
+                    alert(formidable2rdb.table_name_required);
+                } else {
+                    mapped_table_name.removeClass("f2r_error");
+                }
+            }
 		});
 	});
 </script>

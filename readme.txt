@@ -2,8 +2,8 @@
 Contributors: gfirem
 Tags: formidable, push entries to mysql, formidable action, formidable mysql action, custom action, push entries to mysql
 Requires at least: 4.5
-Tested up to: 4.7.2
-Stable tag: 1.2.2
+Tested up to: 4.9
+Stable tag: 1.2.4
 License: Apache License 2.0
 License URI: http://www.apache.org/licenses/
 
@@ -13,6 +13,10 @@ Formidable action to push data to MySQL
 Add action to send data to a MySQL table. It create the table to synch the data.
 
 == Changelog ==
+= 1.2.4 =
+* Fixing the error when the action is delete.
+*
+
 = 1.2.1 =
 Fixing the insert sql query generation
 

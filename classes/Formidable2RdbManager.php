@@ -7,7 +7,7 @@ class Formidable2RdbManager {
 	
 	private static $plugin_slug = 'formidable2rdb';
 	private static $plugin_short = 'Formidable2Rdb';
-	protected static $version = '1.2.0';
+	protected static $version = '1.2.4';
 	
 	public function __construct() {
 		try {
