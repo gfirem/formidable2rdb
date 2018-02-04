@@ -12,21 +12,21 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Formidable2RdbFreemius {
-	
+
 	private static $plugins_slug = 'formidable2rdb';
-	
+
 	private static function get_license_option() {
 		return maybe_unserialize( get_site_option( self::$plugins_slug . '_license' ) );
 	}
-	
+
 	private static function update_license_option( $license_data ) {
 		return update_site_option( self::$plugins_slug . '_license', maybe_serialize( $license_data ) );
 	}
-	
+
 	private static function delete_license_option() {
 		return delete_site_option( self::$plugins_slug . '_license' );
 	}
-	
+
 	public static function isUnlimited() {
 		$license = self::getLicense();
 		if ( ! empty( $license ) ) {
@@ -34,25 +34,25 @@ class Formidable2RdbFreemius {
 		} else {
 			$result = $license;
 		}
-		
+
 		return $result;
 	}
-	
+
 	public static function getLicense() {
 		$fs = self::getFreemius();
-		
+
 		return $fs->_get_license();
 	}
-	
+
 	/**
 	 * @return Freemius
 	 */
 	public static function getFreemius() {
 		global $formidable2rdb_fs;
-		
+
 		return $formidable2rdb_fs;
 	}
-	
+
 	private static function process_multi_site() {
 		add_action( 'fs_before_admin_menu_init_' . self::$plugins_slug, function () {
 			if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() != BLOG_ID_CURRENT_SITE ) {
@@ -65,7 +65,7 @@ class Formidable2RdbFreemius {
 				}
 			}
 		} );
-		
+
 		add_action( 'fs_after_account_connection_' . self::$plugins_slug, function ( $user, $site ) {
 			if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() == BLOG_ID_CURRENT_SITE ) {
 				$free = freemius( self::$plugins_slug );
@@ -77,50 +77,55 @@ class Formidable2RdbFreemius {
 				}
 			}
 		}, 10, 2 );
-		
+
 		add_action( 'fs_after_account_delete_' . self::$plugins_slug, function () {
 			self::delete_license_option();
 		} );
-		
+
 		add_action( 'fs_after_uninstall_' . self::$plugins_slug, function () {
 			self::delete_license_option();
 		} );
-		
+
 		add_action( 'fs_is_submenu_visible_' . self::$plugins_slug, function ( $is_visible, $menu_id ) {
 			if ( defined( 'BLOG_ID_CURRENT_SITE' ) && get_current_blog_id() != BLOG_ID_CURRENT_SITE ) {
 				$is_visible = false;
 			}
-			
+
 			return $is_visible;
 		}, 10, 2 );
 	}
-	
+
 	public static function start_freemius() {
 		global $formidable2rdb_fs;
-		
+
 		if ( ! isset( $formidable2rdb_fs ) ) {
 			require_once dirname( __FILE__ ) . '/freemius/start.php';
-			
+
 			$formidable2rdb_fs = fs_dynamic_init( array(
-				'id'                  => '723',
-				'slug'                => 'formidable2rdb',
-				'type'                => 'plugin',
-				'public_key'          => 'pk_dc6ce49acae620ba0bc501baaebe6',
-				'is_premium'          => true,
-				'is_premium_only'     => true,
-				'has_addons'          => false,
-				'has_paid_plans'      => true,
-				'is_org_compliant'    => false,
-				'menu'                => array(
+				'id'               => '723',
+				'slug'             => 'formidable2rdb',
+				'type'             => 'plugin',
+				'public_key'       => 'pk_dc6ce49acae620ba0bc501baaebe6',
+				'is_premium'       => true,
+				'is_premium_only'  => true,
+				'has_addons'       => false,
+				'has_paid_plans'   => true,
+				'is_org_compliant' => false,
+				'menu'             => array(
 					'slug'       => 'formidable2rdb',
 					'first-path' => 'admin.php?page=formidable2rdb',
 					'support'    => false,
+					'pricing'    => true
+				),
+				'trial'            => array(
+					'days'               => 14,
+					'is_require_payment' => true,
 				),
 			) );
 		}
-		
-		self::process_multi_site();
-		
+
+//		self::process_multi_site();
+
 		return $formidable2rdb_fs;
 	}
 }

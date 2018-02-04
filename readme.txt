@@ -1,9 +1,9 @@
-=== MySQL Action ===
+=== GFireM MySQL Action ===
 Contributors: gfirem
 Tags: formidable, push entries to mysql, formidable action, formidable mysql action, custom action, push entries to mysql
 Requires at least: 4.5
 Tested up to: 4.9
-Stable tag: 1.2.5
+Stable tag: 2.0.0
 License: Apache License 2.0
 License URI: http://www.apache.org/licenses/
 
@@ -13,6 +13,11 @@ Formidable action to push data to MySQL
 Add action to send data to a MySQL table. It create the table to synch the data.
 
 == Changelog ==
+= 1.2.6 =
+* Updating freemius library.
+* Adding multi-site support from freemius. Now if you use multi-site and bought multiples license, they will be automatically apply to child sites.
+* Rename the plugin to GFireM MySQL Action.
+
 = 1.2.5 =
 * Fixing the assets generated from the sh script.
 

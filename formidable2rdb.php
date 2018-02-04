@@ -3,9 +3,9 @@
  * @package           Formidable2Rdb
  *
  * @wordpress-plugin
- * Plugin Name:       Formidable2Rdb
+ * Plugin Name:       GFireM MySQL Action
  * Description:       Formidable action to push data to MySQL Table.
- * Version:           1.2.5
+ * Version:           2.0.0
  * Author:            gfirem
  * License:           Apache License 2.0
  * License URI:       http://www.apache.org/licenses/

@@ -4,46 +4,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Formidable2RdbManager {
-	
+
 	private static $plugin_slug = 'formidable2rdb';
 	private static $plugin_short = 'Formidable2Rdb';
-	protected static $version = '1.2.5';
-	
+	protected static $version = '1.2.6';
+
 	public function __construct() {
 		try {
 			require_once 'class-tgm-plugin-activation.php';
 			require_once 'Formidable2RdbRequired.php';
 			new Formidable2RdbRequired();
-			
-			if ( self::is_formidable_active()) {
-				
+
+			if ( FrmAppHelper::pro_is_installed() ) {
+
 				require_once 'model/Formidable2RdbColumnType.php';
 				require_once 'Formidable2RdbLog.php';
 				new Formidable2RdbLog();
-				
+
 				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
 					require_once 'Formidable2RdbGeneric.php';
 					new Formidable2RdbGeneric();
-					
+
 					require_once 'core/TreeWalker.php';
 					require_once "Formidable2RdbException.php";
 					require_once 'Formidable2RdbCore.php';
-					
+
 					require_once 'class-wp-list-table.php';
 					require_once 'Formidable2RdbDataTable.php';
-					
+
 					require_once 'Formidable2RdbFieldOptions.php';
 					new Formidable2RdbFieldOptions();
 				}
 				require_once 'Formidable2RdbAdminView.php';
 				new Formidable2RdbAdminView();
-				
+
 				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
 					require_once 'Formidable2RdbTrackTables.php';
 					new Formidable2RdbTrackTables();
-					
+
 					add_action( 'frm_registered_form_actions', array( $this, 'register_action' ) );
 				}
+			} else {
+				add_action( 'admin_notices', array( $this, 'required_formidable_pro' ) );
 			}
 		} catch ( Exception $ex ) {
 			Formidable2RdbGeneric::setMessage( array(
@@ -52,17 +54,21 @@ class Formidable2RdbManager {
 			) );
 		}
 	}
-	
+
+	public function required_formidable_pro() {
+		require F2M_VIEW_PATH . 'formidable_notice.php';
+	}
+
 	public static function load_plugins_dependency() {
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	}
-	
+
 	public static function is_formidable_active() {
 		self::load_plugins_dependency();
-		
+
 		return is_plugin_active( 'formidable/formidable.php' );
 	}
-	
+
 	/**
 	 * Register action
 	 *
@@ -73,22 +79,22 @@ class Formidable2RdbManager {
 	public function register_action( $actions ) {
 		$actions['formidable2rdb'] = 'Formidable2RdbAction';
 		require_once 'Formidable2RdbAction.php';
-		
+
 		return $actions;
 	}
-	
+
 	static function getShort() {
 		return self::$plugin_short;
 	}
-	
+
 	static function getVersion() {
 		return self::$version;
 	}
-	
+
 	static function getSlug() {
 		return self::$plugin_slug;
 	}
-	
+
 	/**
 	 * Translate string to main Domain
 	 *
@@ -99,7 +105,7 @@ class Formidable2RdbManager {
 	public static function t( $str ) {
 		return __( $str, 'formidable2rdb' );
 	}
-	
+
 	/**
 	 * Handle exceptions
 	 *
@@ -118,36 +124,36 @@ class Formidable2RdbManager {
 					$error_str .= $key . " : " . $value . "<br/>";
 				}
 			}
-			
+
 			Formidable2RdbLog::log( array(
 				'action'         => "F2R_Management",
 				'object_type'    => Formidable2RdbManager::getShort(),
 				'object_subtype' => "detail_error",
 				'object_name'    => $message,
 			) );
-			
+
 			if ( $output ) {
 				self::show_error( $message );
 			}
-			
+
 			return $message;
 		} else {
-			
+
 			Formidable2RdbLog::log( array(
 				'action'         => "F2R_Management",
 				'object_type'    => Formidable2RdbManager::getShort(),
 				'object_subtype' => "detail_error",
 				'object_name'    => $message,
 			) );
-			
+
 			if ( $output ) {
 				self::show_error( $message );
 			}
 		}
-		
+
 		return $message;
 	}
-	
+
 	/**
 	 * Output error
 	 *
