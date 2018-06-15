@@ -5,49 +5,52 @@ function FormidableFnc() {
         jQuery('.frm_single_formidable2rdb_settings ').each(function() {
             var actionId = jQuery(this).attr('data-actionkey');
             if (actionId) {
-                var mapped_field = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_mapped_field]']");
-                var mapped_old_field = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_old_mapped_field]']");
-                var mapped_table_name = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_table_name]']");
-                var mapped_old_table_name = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_old_table_name]']");
+                var action_is_loaded = jQuery('[name="frm_formidable2rdb_action[' + actionId + '][post_content][f2r_mapped_field]"]').length > 0;
+                if (action_is_loaded) {
+                    var mapped_field = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_mapped_field]']");
+                    var mapped_old_field = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_old_mapped_field]']");
+                    var mapped_table_name = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_table_name]']");
+                    var mapped_old_table_name = jQuery("[name='frm_formidable2rdb_action[" + actionId + "][post_content][f2r_old_table_name]']");
 
-                var action_fields = jQuery('table.f2r_map_table tr.f2r_row').map(function(i, v) {
-                    var $id = jQuery('.f2r_map_id', this);
-                    var $enabled = jQuery('.f2r_map_enabled', this);
-                    var $name = jQuery('.f2r_map_name', this);
-                    var $default = jQuery('.f2r_map_default', this);
-                    var $type = jQuery('.f2r_map_type', this);
-                    var $length = jQuery('.f2r_map_length ', this);
-                    var $precision = jQuery('.f2r_map_precision', this);
-                    var $null = jQuery('.f2r_map_not_null', this);
-                    return {
-                        'Id': $id.val(),
-                        'Enabled': $enabled.is(":checked"),
-                        'Field': $name.val(),
-                        'Default': $default.val(),
-                        'Type': $type.val(),
-                        'Length': $length.val(),
-                        'Precision': $precision.val(),
-                        'Null': $null.val()
-                    }
-                }).get();
+                    var action_fields = jQuery('table.f2r_map_table tr.f2r_row').map(function(i, v) {
+                        var $id = jQuery('.f2r_map_id', this);
+                        var $enabled = jQuery('.f2r_map_enabled', this);
+                        var $name = jQuery('.f2r_map_name', this);
+                        var $default = jQuery('.f2r_map_default', this);
+                        var $type = jQuery('.f2r_map_type', this);
+                        var $length = jQuery('.f2r_map_length ', this);
+                        var $precision = jQuery('.f2r_map_precision', this);
+                        var $null = jQuery('.f2r_map_not_null', this);
+                        return {
+                            'Id': $id.val(),
+                            'Enabled': $enabled.is(":checked"),
+                            'Field': $name.val(),
+                            'Default': $default.val(),
+                            'Type': $type.val(),
+                            'Length': $length.val(),
+                            'Precision': $precision.val(),
+                            'Null': $null.val()
+                        }
+                    }).get();
 
-                var json = JSON.stringify(action_fields);
-                if (mapped_field) {
-                    mapped_field.val(json);
-                    if (!mapped_old_field.val()) {
-                        mapped_old_field.val(json);
-                    }
+                    var json = JSON.stringify(action_fields);
+                    if (mapped_field) {
+                        mapped_field.val(json);
+                        if (!mapped_old_field.val()) {
+                            mapped_old_field.val(json);
+                        }
 
-                    if (!mapped_old_table_name.val()) {
-                        mapped_old_table_name.val(mapped_table_name.val());
-                    }
+                        if (!mapped_old_table_name.val()) {
+                            mapped_old_table_name.val(mapped_table_name.val());
+                        }
 
-                    if (!mapped_table_name.val()) {
-                        e.preventDefault();
-                        mapped_table_name.addClass("f2r_error");
-                        alert(formidable2rdb.table_name_required);
-                    } else {
-                        mapped_table_name.removeClass("f2r_error");
+                        if (!mapped_table_name.val()) {
+                            e.preventDefault();
+                            mapped_table_name.addClass("f2r_error");
+                            alert(formidable2rdb.table_name_required);
+                        } else {
+                            mapped_table_name.removeClass("f2r_error");
+                        }
                     }
                 }
             }
@@ -227,6 +230,17 @@ function FormidableFnc() {
 
                         jQuery('.frm_single_formidable2rdb_settings ').each(function() {
                             var action = jQuery(this);
+
+                            var select_types = jQuery(".f2r_map_type");
+
+                            jQuery.each(select_types, function() {
+                                process_types(jQuery(this), action);
+                            });
+
+                            select_types.change(function() {
+                                process_types(jQuery(this), action);
+                            });
+
                             var needsLoad = action.attr('is-ready');
                             needsLoad = (typeof(needsLoad) === 'undefined');
                             if (needsLoad) {
@@ -234,28 +248,20 @@ function FormidableFnc() {
                                     $formActions.on('click', '.check_table', isTableNameAvailable);
                                     controller = true;
                                 }
-                                var select_types = action.find(".f2r_map_type");
 
-                                jQuery.each(select_types, function() {
-                                    process_types(jQuery(this), action);
-                                });
 
-                                select_types.change(function() {
-                                    process_types(jQuery(this), action);
-                                });
-
-                                action.find(".f2r_map_length").change(function() {
+                                jQuery(".f2r_map_length").change(function() {
                                     var field_id = jQuery(this).attr("field_id"),
-                                        default_input = jQuery("input[name='f2r_column_default_" + field_id + "']");
+                                        default_input = action.find("input[name='f2r_column_default_" + field_id + "']");
                                     if (default_input.val().length > jQuery(this).val()) {
                                         default_input.val("");
                                     }
                                     default_input.attr("maxlength", jQuery(this).val());
                                 });
 
-                                action.find(".f2r_map_enabled").click(function() {
+                                jQuery(".f2r_map_enabled").click(function() {
                                     var field_id = jQuery(this).attr("field_id"),
-                                        help_tooltip = jQuery("#frm_help_column_enabled_" + field_id);
+                                        help_tooltip = action.find("#frm_help_column_enabled_" + field_id);
                                     if (!jQuery(this).is(':checked')) {
                                         help_tooltip.show();
                                     } else {
@@ -263,9 +269,9 @@ function FormidableFnc() {
                                     }
                                 });
 
-                                action.find(".f2r_show_repeatable_fields").click(function() {
+                                jQuery(".f2r_show_repeatable_fields").click(function() {
                                     var field_id = jQuery(this).attr("field_id"),
-                                        section = jQuery('#f2r_hidden_repeatable_section_' + field_id);
+                                        section = action.find('#f2r_hidden_repeatable_section_' + field_id);
                                     if (!section.is(':visible')) {
                                         section.show();
                                     } else {
