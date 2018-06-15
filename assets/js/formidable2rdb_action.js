@@ -1,4 +1,6 @@
 function FormidableFnc() {
+    var controller = false;
+
     function saveValues(e) {
         jQuery('.frm_single_formidable2rdb_settings ').each(function() {
             var actionId = jQuery(this).attr('data-actionkey');
@@ -132,7 +134,7 @@ function FormidableFnc() {
         });
     }
 
-    function process_types(current, force_default) {
+    function process_types(current, action, force_default) {
         var field_id = current.attr("field_id"),
             form_type = current.attr("field_type"),
             col_type = current.val();
@@ -142,9 +144,9 @@ function FormidableFnc() {
                 var rule = formidable2rdb.map_column[form_type][index];
                 if (rule["type"] == col_type) {
                     process_default_validation(current, rule["group"]);
-                    var precision_input = jQuery("input[name='f2r_column_precision_" + field_id + "']"),
-                        default_input = jQuery("input[name='f2r_column_default_" + field_id + "']"),
-                        length_input = jQuery("input[name='f2r_column_length_" + field_id + "']");
+                    var precision_input = action.find("input[name='f2r_column_precision_" + field_id + "']"),
+                        default_input = action.find("input[name='f2r_column_default_" + field_id + "']"),
+                        length_input = action.find("input[name='f2r_column_length_" + field_id + "']");
 
                     if (rule["need_default"]) {
                         default_input.removeAttr("disabled");
@@ -181,6 +183,34 @@ function FormidableFnc() {
         }
     }
 
+    function isTableNameAvailable() {
+        var current_button = jQuery(this);
+        var action_id = current_button.attr("action_id");
+        var table_name_input = jQuery("input[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_table_name]']");
+        var table_name = table_name_input.val();
+        table_name_input.removeClass("f2r_error");
+        if (table_name) {
+            var $exist_in_other_actions = false;
+            jQuery('.f2r_table_name').each(function() {
+                if ((jQuery(this).attr("action_id") != action_id) && (jQuery(this).val() == table_name)) {
+                    $exist_in_other_actions = true;
+                    return false;
+                }
+            });
+            if ($exist_in_other_actions) {
+                alert(formidable2rdb.table_already_exist);
+                table_name_input.addClass("f2r_error");
+                move(table_name_input);
+            } else {
+                f2r_exist_table(action_id, table_name, table_name_input);
+            }
+        } else {
+            alert(formidable2rdb.table_name_required);
+            table_name_input.addClass("f2r_error");
+            move(table_name_input);
+        }
+    }
+
     return {
         init: function() {
             if (document.getElementById('frm_notification_settings') !== null) {
@@ -194,22 +224,27 @@ function FormidableFnc() {
             jQuery(document).bind('ajaxComplete ', function(event, xhr, settings) {
                 if (settings.data) {
                     if (settings.data.indexOf('frm_form_action_fill') !== 0 && settings.data.indexOf('formidable2rdb') !== 0) {
+
                         jQuery('.frm_single_formidable2rdb_settings ').each(function() {
                             var action = jQuery(this);
-                            var isLoaded = action.attr('is-ready');
-                            isLoaded = (typeof(isLoaded) === 'undefined');
-                            if (isLoaded) {
-                                var select_types = jQuery(".f2r_map_type");
+                            var needsLoad = action.attr('is-ready');
+                            needsLoad = (typeof(needsLoad) === 'undefined');
+                            if (needsLoad) {
+                                if (controller === false) {
+                                    $formActions.on('click', '.check_table', isTableNameAvailable);
+                                    controller = true;
+                                }
+                                var select_types = action.find(".f2r_map_type");
 
                                 jQuery.each(select_types, function() {
-                                    process_types(jQuery(this));
+                                    process_types(jQuery(this), action);
                                 });
 
                                 select_types.change(function() {
-                                    process_types(jQuery(this));
+                                    process_types(jQuery(this), action);
                                 });
 
-                                jQuery(".f2r_map_length").change(function() {
+                                action.find(".f2r_map_length").change(function() {
                                     var field_id = jQuery(this).attr("field_id"),
                                         default_input = jQuery("input[name='f2r_column_default_" + field_id + "']");
                                     if (default_input.val().length > jQuery(this).val()) {
@@ -218,7 +253,7 @@ function FormidableFnc() {
                                     default_input.attr("maxlength", jQuery(this).val());
                                 });
 
-                                jQuery(".f2r_map_enabled").click(function() {
+                                action.find(".f2r_map_enabled").click(function() {
                                     var field_id = jQuery(this).attr("field_id"),
                                         help_tooltip = jQuery("#frm_help_column_enabled_" + field_id);
                                     if (!jQuery(this).is(':checked')) {
@@ -228,7 +263,7 @@ function FormidableFnc() {
                                     }
                                 });
 
-                                jQuery(".f2r_show_repeatable_fields").click(function() {
+                                action.find(".f2r_show_repeatable_fields").click(function() {
                                     var field_id = jQuery(this).attr("field_id"),
                                         section = jQuery('#f2r_hidden_repeatable_section_' + field_id);
                                     if (!section.is(':visible')) {
@@ -244,36 +279,10 @@ function FormidableFnc() {
                                 //Only accept alpha in the name map
                                 bind_validation(jQuery('.f2r_map_name,.f2r_table_name'), "[a-z0-9-_]");
 
-                                jQuery(".check_table").click(function() {
-                                    var current_button = jQuery(this);
-                                    var action_id = current_button.attr("action_id");
-                                    var table_name_input = jQuery("input[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_table_name]']");
-                                    var table_name = table_name_input.val();
-                                    table_name_input.removeClass("f2r_error");
-                                    if (table_name) {
-                                        var $exist_in_other_actions = false;
-                                        jQuery('.f2r_table_name').each(function() {
-                                            if ((jQuery(this).attr("action_id") != action_id) && (jQuery(this).val() == table_name)) {
-                                                $exist_in_other_actions = true;
-                                                return false;
-                                            }
-                                        });
-                                        if ($exist_in_other_actions) {
-                                            alert(formidable2rdb.table_already_exist);
-                                            table_name_input.addClass("f2r_error");
-                                            move(table_name_input);
-                                        } else {
-                                            f2r_exist_table(action_id, table_name, table_name_input);
-                                        }
-                                    } else {
-                                        alert(formidable2rdb.table_name_required);
-                                        table_name_input.addClass("f2r_error");
-                                        move(table_name_input);
-                                    }
-                                });
                                 action.attr('is-ready', 'true');
                             }
                         });
+
                     }
                 }
             });
