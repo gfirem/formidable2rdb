@@ -140,16 +140,17 @@ function FormidableFnc() {
     function process_types(current, action, force_default) {
         var field_id = current.attr("field_id"),
             form_type = current.attr("field_type"),
+            action_id = current.attr("action_id"),
             col_type = current.val();
 
         if (form_type && field_id && col_type && formidable2rdb && formidable2rdb.map_column && formidable2rdb.map_column[form_type]) {
-            jQuery.each(formidable2rdb.map_column[form_type], function(index, value) {
+            jQuery.each(formidable2rdb.map_column[form_type], function(index) {
                 var rule = formidable2rdb.map_column[form_type][index];
                 if (rule["type"] == col_type) {
                     process_default_validation(current, rule["group"]);
-                    var precision_input = action.find("input[name='f2r_column_precision_" + field_id + "']"),
-                        default_input = action.find("input[name='f2r_column_default_" + field_id + "']"),
-                        length_input = action.find("input[name='f2r_column_length_" + field_id + "']");
+                    var precision_input = jQuery(action).find("input[name='f2r_column_precision_" + field_id + "_" + action_id + "']"),
+                        default_input = jQuery(action).find("input[name='f2r_column_default_" + field_id + "_" + action_id + "']"),
+                        length_input = jQuery(action).find("input[name='f2r_column_length_" + field_id + "_" + action_id + "']")
 
                     if (rule["need_default"]) {
                         default_input.removeAttr("disabled");
@@ -227,28 +228,26 @@ function FormidableFnc() {
             jQuery(document).bind('ajaxComplete ', function(event, xhr, settings) {
                 if (settings.data) {
                     if (settings.data.indexOf('frm_form_action_fill') !== 0 && settings.data.indexOf('formidable2rdb') !== 0) {
-
                         jQuery('.frm_single_formidable2rdb_settings ').each(function() {
                             var action = jQuery(this);
-
-                            var select_types = jQuery(".f2r_map_type");
-
-                            jQuery.each(select_types, function() {
-                                process_types(jQuery(this), action);
-                            });
-
-                            select_types.change(function() {
-                                process_types(jQuery(this), action);
-                            });
-
                             var needsLoad = action.attr('is-ready');
                             needsLoad = (typeof(needsLoad) === 'undefined');
-                            if (needsLoad) {
+                            var action_is_loaded = jQuery('[name="frm_formidable2rdb_action[' + action.attr('data-actionkey') + '][post_content][f2r_mapped_field]"]').length > 0;
+                            if (needsLoad && action_is_loaded) {
                                 if (controller === false) {
                                     $formActions.on('click', '.check_table', isTableNameAvailable);
                                     controller = true;
                                 }
 
+                                var select_types = jQuery(".f2r_map_type");
+
+                                jQuery.each(select_types, function() {
+                                    process_types(jQuery(this), action);
+                                });
+
+                                select_types.change(function() {
+                                    process_types(jQuery(this), action);
+                                });
 
                                 jQuery(".f2r_map_length").change(function() {
                                     var field_id = jQuery(this).attr("field_id"),

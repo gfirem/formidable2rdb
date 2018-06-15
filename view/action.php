@@ -121,7 +121,7 @@
                     <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_name f2r_map_option_<?php echo $this->number ?>" name="f2r_column_name_<?php echo $f["field_key"] ?>" id="f2r_column_name_<?php echo $f["field_key"] ?>" value="<?php echo "$column_name"; ?>">
                 </td>
                 <td>
-                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>" value="<?php echo "$column_default"; ?>">
+                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_default"; ?>">
                 </td>
                 <td>
                     <select field_id="<?php echo $f["field_key"] ?>" field_type="<?php echo $f["type"]; ?>" action_id="<?php echo $this->number ?>" class="f2r f2r_map_type f2r_map_option_<?php echo $this->number ?>" name="f2r_column_type_<?php echo $f["field_key"] ?>" id="f2r_column_type_<?php echo $f["field_key"] ?>">
@@ -139,8 +139,8 @@
                 </td>
                 <td class="f2r_length_container">
                     <div class="length_precision_container">
-                        <input autocomplete="off" field_id="<?php echo $f["field_key"] ?>" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>" value="<?php echo "$column_length"; ?>">
-                        <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>" value="<?php echo "$column_precision"; ?>">
+                        <input autocomplete="off" field_id="<?php echo $f["field_key"] ?>" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_length"; ?>">
+                        <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_precision"; ?>">
                     </div>
                 </td>
                 <td>
