@@ -755,7 +755,7 @@ class Formidable2RdbAction extends FrmFormAction {
 	/**
 	 * Get the HTML for your action settings
 	 *
-	 * @param array $form_action
+	 * @param WP_Post $form_action
 	 * @param array $args
 	 *
 	 * @return string|void
