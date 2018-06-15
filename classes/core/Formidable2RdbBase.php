@@ -2,46 +2,53 @@
 require_once 'Formidable2RdbInterface.php';
 
 abstract class Formidable2RdbBase implements Formidable2RdbInterface {
-	
+
 	/**
 	 * PDO instance
 	 *
 	 * @var PDO
 	 */
 	public $mbd;
-	
+
 	public $debug = false;
-	
+
 	private $db_name;
-	
+
+	/**
+	 * Formidable2RdbBase constructor.
+	 *
+	 * @param $cong_array
+	 *
+	 * @throws Exception
+	 */
 	function __construct( $cong_array ) {
 		try {
 			$this->db_name = $cong_array["dbname"];
-			
+
 			if ( $cong_array["debug"] ) {
 				$this->debug = true;
 			}
-			
+
 			$this->mbd = new PDO( $cong_array["driver"] . ':host=' . $cong_array["host"] . ';dbname=' . $cong_array["dbname"], $cong_array["user"], $cong_array["pass"],
 				array(
 					PDO::ATTR_PERSISTENT               => true,
 					PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
 					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
+					PDO::MYSQL_ATTR_INIT_COMMAND       => "SET NAMES 'utf8'"
 				) );
-			
+
 		} catch ( PDOException $e ) {
 			throw new Exception( $e->getMessage() );
 		}
 	}
-	
+
 	/**
 	 * @return PDO
 	 */
 	public function getMbd() {
 		return $this->mbd;
 	}
-	
+
 	public function build_sql( $action, $args ) {
 		if ( empty( $action ) ) {
 			return "";
@@ -59,7 +66,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					$column_string = implode( ", ", $columns );
 					$data_string   = implode( ", ", $data );
 					$sql           = "INSERT INTO `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` (" . $column_string . ") VALUES (" . $data_string . ")";
-					
+
 				}
 				break;
 			case "update":
@@ -68,10 +75,10 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					$columns = array();
 					foreach ( $args["columns"] as $key => $value ) {
 						$value     = is_string( $value ) ? "'" . $value . "'" : $value;
-						$columns[] = "`".$this->escape( $args["table_name"] ) . "`.`" . $key . "`=" . $value;
+						$columns[] = "`" . $this->escape( $args["table_name"] ) . "`.`" . $key . "`=" . $value;
 					}
 					$column_string = implode( ", ", $columns );
-					$sql .= $column_string . " WHERE entry_id=" . $args["entry_id"];
+					$sql           .= $column_string . " WHERE entry_id=" . $args["entry_id"];
 				}
 				break;
 			case "delete":
@@ -87,7 +94,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					 * @var Formidable2mysqlColumn $def
 					 */
 					foreach ( $args["columns"] as $key => $def ) {
-						$sql .= "`".$this->escape( $args["table_name"] ) . "`.`" . $this->escape( $def->Field ) . "` " . $this->escape( $def->Type ) . " " . $this->escape( $def->Null );
+						$sql .= "`" . $this->escape( $args["table_name"] ) . "`.`" . $this->escape( $def->Field ) . "` " . $this->escape( $def->Type ) . " " . $this->escape( $def->Null );
 						if ( ! empty( $def->Default ) ) {
 							$sql .= " DEFAULT '" . $this->escape( $def->Default ) . "' ";
 						}
@@ -98,29 +105,29 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					throw new InvalidArgumentException();
 				}
 				break;
-			
+
 			case "drop":
 				if ( $this->check_requirements( $args, array( "table_name" ) ) ) {
 					$table_name = ( is_array( $args["table_name"] ) ) ? explode( ", ", $args["table_name"] ) : $args["table_name"];
-					$sql        = "DROP TABLE `" . $this->db_name . "`.`" . $this->escape( $table_name )."`";
+					$sql        = "DROP TABLE `" . $this->db_name . "`.`" . $this->escape( $table_name ) . "`";
 				} else {
 					throw new InvalidArgumentException();
 				}
 				break;
-			
+
 			case "rename":
 				if ( $this->check_requirements( $args, array( "table_name", "new_table_name" ) ) ) {
-					$sql = "RENAME TABLE `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` TO `" . $this->db_name . "`.`" . $this->escape( $args["new_table_name"] )."`";
+					$sql = "RENAME TABLE `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` TO `" . $this->db_name . "`.`" . $this->escape( $args["new_table_name"] ) . "`";
 				} else {
 					throw new InvalidArgumentException();
 				}
 				break;
-			
+
 			case "add_column":
 				if ( $this->check_requirements( $args, array( "table_name", "columns" ) ) ) {
 					$sql = "ALTER TABLE `" . $this->db_name . "`.`" . $this->escape( $args["table_name"] ) . "` ADD COLUMN (";
 					foreach ( $args["columns"] as $key => $def ) {
-						$sql_row = "`".$this->escape( $args["table_name"] ) . "`.`" . $this->escape( $def->Field ) . "` " . $this->escape( $def->Type ) . " " . $this->escape( $def->Null );
+						$sql_row = "`" . $this->escape( $args["table_name"] ) . "`.`" . $this->escape( $def->Field ) . "` " . $this->escape( $def->Type ) . " " . $this->escape( $def->Null );
 						if ( ! empty( $def->Default ) ) {
 							$sql_row .= " DEFAULT '" . $this->escape( $def->Default ) . "' ";
 						}
@@ -132,7 +139,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					throw new InvalidArgumentException();
 				}
 				break;
-			
+
 			case "drop_column":
 				if ( $this->check_requirements( $args, array( "table_name", "columns" ) ) ) {
 					$sql = "";
@@ -143,7 +150,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					throw new InvalidArgumentException();
 				}
 				break;
-			
+
 			case "change_column":
 				if ( $this->check_requirements( $args, array( "table_name", "columns" ) ) ) {
 					foreach ( $args["columns"] as $key => $new_def ) {
@@ -153,13 +160,13 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 						}
 						$sql .= ";\r\n";
 					}
-					
+
 				} else {
 					throw new InvalidArgumentException();
 				}
 				break;
 		}
-		
+
 		if ( $this->debug ) {
 			if ( $this->is_test() ) {
 				echo "action (" . $action . ") SQL: " . $sql . "\r\n";
@@ -173,9 +180,18 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 			}
 		}
 
-		return mb_convert_encoding($sql, 'utf8');
+		return mb_convert_encoding( $sql, 'utf8' );
 	}
-	
+
+	/**
+	 * Execute the query
+	 *
+	 * @param $sql
+	 * @param null $params
+	 *
+	 * @return bool|PDOStatement
+	 * @throws Formidable2RdbException
+	 */
 	public function execute( $sql, $params = null ) {
 		try {
 			$tran = $this->getMbd()->prepare( $sql );
@@ -187,13 +203,19 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 				}
 			}
 			$tran->execute();
-			
+
 			return $tran;
 		} catch ( Exception $ex ) {
 			throw new Formidable2RdbException( $ex->getMessage() );
 		}
 	}
-	
+
+	/**
+	 * @param $args
+	 * @param $requirements
+	 *
+	 * @return bool
+	 */
 	public function check_requirements( $args, $requirements ) {
 		if ( ! is_array( $args ) ) {
 			return false;
@@ -203,10 +225,17 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Escape string to use in the query
+	 *
+	 * @param $params
+	 *
+	 * @return string
+	 */
 	public function escape( $params ) {
 		if ( is_array( $params ) ) {
 			foreach ( $params as $k => $v ) {
@@ -221,12 +250,12 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 				$params = addslashes( $params );
 			}
 		}
-		
+
 		return $params;
 	}
-	
+
 	public function is_test() {
 		return ( php_sapi_name() === "cli" );
 	}
-	
+
 }

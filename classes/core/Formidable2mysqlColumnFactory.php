@@ -32,5 +32,4 @@ class Formidable2mysqlColumnFactory {
 		
 		return false;
 	}
-	
 }

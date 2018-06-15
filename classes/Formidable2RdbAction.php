@@ -407,8 +407,10 @@ class Formidable2RdbAction extends FrmFormAction {
 	 *
 	 * @param $form_id
 	 * @param $post_content
-	 * @param $action_id
+	 * @param int $action_id
 	 * @param bool $raw
+	 *
+	 * @throws Exception
 	 */
 	private function process_table_columns( $form_id, $post_content, $action_id = 0, $raw = false ) {
 		if ( ! empty( $post_content["f2r_table_name"] ) && ! empty( $post_content["f2r_mapped_field"] ) ) {
@@ -825,6 +827,8 @@ class Formidable2RdbAction extends FrmFormAction {
 	 * @param $table_name
 	 * @param $site_id
 	 * @param $mapped_to_rdb
+	 *
+	 * @throws Formidable2RdbException
 	 */
 	private function create_table_into_rdb( $action_id, $full_table_name, $table_name, $site_id, $mapped_to_rdb ) {
 		/**

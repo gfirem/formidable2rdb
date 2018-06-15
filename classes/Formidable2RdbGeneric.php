@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Formidable2RdbGeneric {
-	
+
 	function __construct() {
 		add_filter( F2M_PREFIX . 'plugin_action_links_' . F2M_BASE_NAME, array( $this, 'add_formidable_key_field_setting_link' ), 9, 2 );
 		add_action( 'admin_footer', array( $this, 'enqueue_js' ) );
@@ -12,7 +12,7 @@ class Formidable2RdbGeneric {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 	}
-	
+
 	/**
 	 * Generate GUID
 	 *
@@ -22,10 +22,10 @@ class Formidable2RdbGeneric {
 		if ( function_exists( 'com_create_guid' ) === true ) {
 			return trim( com_create_guid(), '{}' );
 		}
-		
+
 		return sprintf( '%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 16384, 20479 ), mt_rand( 32768, 49151 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ), mt_rand( 0, 65535 ) );
 	}
-	
+
 	/**
 	 * Show a new notification. The array message need [message, type, title],
 	 * where type can be [success|info|warning|danger] by default info
@@ -38,7 +38,7 @@ class Formidable2RdbGeneric {
 		}
 		$_SESSION["message"] = $message;
 	}
-	
+
 	/**
 	 * Include styles in admin and front
 	 */
@@ -48,7 +48,7 @@ class Formidable2RdbGeneric {
 		wp_enqueue_style( 'formidable2rdb', F2M_CSS_PATH . 'formidable2rdb.css', array(), Formidable2RdbManager::getVersion() );
 		wp_enqueue_style( 'formidable2rdb_notification', F2M_CSS_PATH . 'formidable2rdb_notification.css', array(), Formidable2RdbManager::getVersion() );
 	}
-	
+
 	/**
 	 * Include script in admin and front
 	 */
@@ -57,12 +57,12 @@ class Formidable2RdbGeneric {
 		wp_enqueue_script( 'bootstrap-notify', F2M_JS_PATH . 'bootstrap-notify.min.js', array( "jquery" ), Formidable2RdbManager::getVersion(), true );
 		wp_enqueue_script( 'formidable2rdb_notification', F2M_JS_PATH . 'formidable2rdb_notification.js', array( "jquery" ), Formidable2RdbManager::getVersion(), true );
 		wp_enqueue_script( 'formidable2rdb_action', F2M_JS_PATH . 'formidable2rdb_action.js', array( "jquery" ), Formidable2RdbManager::getVersion(), true );
-		
+
 		$notification_view = $this->load_notification_string();
 		if ( $notification_view === false ) {
 			Formidable2RdbManager::handle_exception( "Error loading the notification view." );
 		}
-		
+
 		$args = array(
 			"message"             => ( ! empty( $_SESSION["message"] ) ) ? $_SESSION["message"] : "",
 			"view"                => $notification_view,
@@ -76,20 +76,20 @@ class Formidable2RdbGeneric {
 			"credential_invalid"  => Formidable2RdbManager::t( "Invalid Credential, please review it." ),
 			"map_column"          => self::get_granted_column_type(),
 		);
-		
+
 		wp_localize_script( 'formidable2rdb', 'formidable2rdb', $args );
-		
+
 		if ( isset( $_SESSION["message"] ) ) {
 			$_SESSION["message"] = array();
 		}
 	}
-	
+
 	private function load_notification_string() {
 		$base_template_path = self::load_field_template( "notification" );
-		
+
 		return file_get_contents( $base_template_path );
 	}
-	
+
 	public static function load_field_template( $part ) {
 		$template = locate_template( array( 'templates/' . $part . '.php' ) );
 		if ( ! $template ) {
@@ -98,7 +98,7 @@ class Formidable2RdbGeneric {
 			return $template;
 		}
 	}
-	
+
 	/**
 	 * Setting link to add in the plugins list
 	 *
@@ -106,10 +106,10 @@ class Formidable2RdbGeneric {
 	 */
 	public static function get_setting_link() {
 		$url = admin_url( 'admin.php?page=formidable2rdb' );
-		
+
 		return sprintf( '<a href="%s">%s</a>', esc_attr( $url ), Formidable2RdbManager::t( "Settings" ) );
 	}
-	
+
 	/**
 	 * Add a "Settings" link to the plugin row in the "Plugins" page.
 	 *
@@ -123,11 +123,11 @@ class Formidable2RdbGeneric {
 		if ( $pluginFile == 'formidable2rdb/formidable2rdb.php' ) {
 			array_unshift( $links, self::get_setting_link() );
 		}
-		
+
 		return $links;
 	}
-	
-	
+
+
 	/**
 	 * Get Generic types mapped to Rdb
 	 *
@@ -144,11 +144,11 @@ class Formidable2RdbGeneric {
 				"TIMESTAMP" => "TimeStamp"
 			)
 		);
-		
-		
+
+
 		return array_merge( array( "none" => Formidable2RdbManager::t( "Select type" ) ), $map );
 	}
-	
+
 	/**
 	 * Get all formidable fields
 	 *
@@ -157,7 +157,7 @@ class Formidable2RdbGeneric {
 	public static function get_all_formidable_fields() {
 		return array_merge( FrmField::field_selection(), FrmField::pro_field_selection() );
 	}
-	
+
 	/**
 	 * Get all types mapped to rdb
 	 *
@@ -173,12 +173,12 @@ class Formidable2RdbGeneric {
 		$float     = new Formidable2RdbColumnType( "FLOAT", "Float", true, true, true, "number", 10, 2 );
 		$decimal   = new Formidable2RdbColumnType( "DECIMAL", "Decimal", true, true, true, "number" );
 		$double    = new Formidable2RdbColumnType( "DOUBLE", "Double", true, true, true, "number" );
-		
+
 		$date      = new Formidable2RdbColumnType( "DATE", "Date", false, false, false, "date" );
 		$datetime  = new Formidable2RdbColumnType( "DATETIME", "DateTime", false, false, false, "date" );//The length is used to store the fraction second part fsp
 		$timestamp = new Formidable2RdbColumnType( "TIMESTAMP", "TimeStamp", false, false, false, "date" );//The length is used to store the fraction second part fsp
 		$time      = new Formidable2RdbColumnType( "TIME", "Time", false, false, false, "date" );//The length is used to store the fraction second part fsp
-		
+
 		$char       = new Formidable2RdbColumnType( "CHAR", "Char", true, true, false, "text", 20 );
 		$varchar    = new Formidable2RdbColumnType( "VARCHAR", "Varchar", true, true, false, "text", 20 );
 		$binary     = new Formidable2RdbColumnType( "BINARY", "Binary", false, true, false, "text", 20 );
@@ -191,11 +191,11 @@ class Formidable2RdbGeneric {
 		$mediumtext = new Formidable2RdbColumnType( "MEDIUMTEXT", "MediumText", false, false, false );
 		$longblob   = new Formidable2RdbColumnType( "LONGBLOB", "LongBlob", false, false, false );
 		$longtext   = new Formidable2RdbColumnType( "LONGTEXT", "LongText", false, false, false );
-		
+
 		$text_group = array( $varchar, $char, $binary, $varbinary, $tinyblob, $tinytext, $blob, $text, $mediumblob, $mediumtext, $longblob, $longtext );
 		$date_group = array( $datetime, $date, $timestamp, $time );
 		$int_group  = array( $integer, $tinyint, $smallint, $mediumint, $bit, $bigint, $float, $decimal, $double );
-		
+
 		return apply_filters( "formidable2rdb_grant_map_fields", array(
 			'text'     => $text_group,
 			'textarea' => $text_group,
@@ -223,7 +223,7 @@ class Formidable2RdbGeneric {
 			'divider'  => array( $longtext ),
 		) );
 	}
-	
+
 	/**
 	 * Get rdb column type mapped to formidable field type
 	 *
@@ -233,10 +233,10 @@ class Formidable2RdbGeneric {
 	 */
 	public static function get_granted_column_type_for_field( $field_type ) {
 		$mapped = self::get_granted_column_type();
-		
+
 		return $mapped[ $field_type ];
 	}
-	
+
 	/**
 	 * Get rdb column type by Type
 	 *
@@ -246,7 +246,7 @@ class Formidable2RdbGeneric {
 	 */
 	public static function get_granted_column_by_type( $type ) {
 		$mapped = self::get_granted_column_type();
-		
+
 		foreach ( $mapped as $key => $items ) {
 			foreach ( $items as $item ) {
 				if ( strpos( $type, $item->getType() ) !== false ) {
@@ -254,10 +254,10 @@ class Formidable2RdbGeneric {
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * List of exclude fields
 	 *
@@ -274,7 +274,7 @@ class Formidable2RdbGeneric {
 			)
 		);
 	}
-	
+
 	/**
 	 * Get table name with prefix
 	 *
@@ -284,7 +284,7 @@ class Formidable2RdbGeneric {
 	 */
 	public static function get_table_name( $table_name ) {
 		global $wpdb;
-		
-		return $wpdb->prefix . $table_name;
+
+		return $wpdb->prefix . strtolower( $table_name );
 	}
 }
