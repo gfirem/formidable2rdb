@@ -428,7 +428,7 @@ class Formidable2RdbAdminView {
 	 * @param array $args idem to the add_settings_field arguments. If the field is 'select' type the argument must have an array of options in an 'option' index
 	 */
 	public static function render_field_in_settingPage( $name, $title, $sectionId, $option_group_name, $type = 'text', $required = true, $page, $args = array() ) {
-		$newType     = ( $type == 'number' || $type == 'select' || $type == 'password' ) ? $type : 'text';//if there is a bad input or is empty default value is text
+		$newType     = ( $type == 'number' || $type == 'select' || $type == 'password' || $type == 'checkbox' ) ? $type : 'text';//if there is a bad input or is empty default value is text
 		$placeholder = $type != 'number' ? 'Please insert text' : 'Please insert a number'; //TODO implement language for this texts
 		if ( $newType == 'number' || $newType == 'text' || $newType == 'password' ) {
 			add_settings_field( $name, $title, function () use ( $placeholder, $newType, $name, $option_group_name, $required ) {
@@ -452,6 +452,14 @@ class Formidable2RdbAdminView {
 					echo $str;
 				}
 			}, $page, $sectionId, $args );
+
+		} else if ( $newType == 'checkbox' ) {
+			add_settings_field( $name, $title, function () use ( $name, $option_group_name ) {
+				$options = get_option( $option_group_name );
+				$value   = isset( $options[ $name ] ) ? $options[ $name ] : '';
+				$element = checked( 1, $value, false );
+				printf( '<input type="checkbox"  id="%s" name="%s[%s]" value="1"  %s />', $name, $option_group_name, $name, $element );
+			}, $page, $sectionId );
 		}
 	}
 }
