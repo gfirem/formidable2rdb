@@ -269,7 +269,7 @@ class Formidable2RdbAdminView {
 				echo '<input type="button"  id="f2r_test_credential" name="test" value="Test Credential" />';
 			}, $slug, $sectionId );
 			add_settings_field( 'f2r_submit', '', function () {
-			submit_button( 'Save Data', 'button-primary', 'f2r_submit' );
+				submit_button( 'Save Data', 'button-primary', 'f2r_submit' );
 			}, $slug, $sectionId );
 
 //			if ( is_network_admin() ) {
@@ -490,7 +490,7 @@ class Formidable2RdbAdminView {
 	}
 
 	/**
-	 *Allow to create a Text , numeric, password or a combo box Field
+	 * Allow to create a Text , numeric, password or a combo box Field
 	 * @author: Amilkar Ferrá Díaz
 	 *
 	 * @param $name string: field name
@@ -511,8 +511,7 @@ class Formidable2RdbAdminView {
 				$valor   = isset( $options[ $name ] ) ? $options[ $name ] : '';
 				printf( '<input type="%s"  id="%s" name="%s[%s]" value="%s" placeholder="%s" %s />', $newType, $name, $option_group_name, $name, $valor, $placeholder, $required ? 'required' : '' );
 			}, $page, $sectionId, $args );
-		} else if ( $newType == 'select' ) //preparo el combo {
-		{
+		} else if ( $newType == 'select' ) {
 			add_settings_field( $name, $title, function () use ( $args, $placeholder, $newType, $name, $option_group_name, $required ) {
 				$options = get_option( $option_group_name );
 				$valor   = isset( $options[ $name ] ) ? $options[ $name ] : '';
