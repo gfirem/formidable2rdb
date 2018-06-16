@@ -1,5 +1,7 @@
 jQuery(document).ready(function ($) {
 
+    //allowSubmit(false);//disabling submit button to prevent submit without check credentials
+
     function validate_credential_view() {
         var result = true;
         var user = $("#f2r_admin_connection_user").val(),
@@ -14,11 +16,9 @@ jQuery(document).ready(function ($) {
         return result;
     }
 
+
     $("input[name='f2r_submit']").click(function (e) {
-        if (!validate_credential_view()) {
-            e.preventDefault();
-            alert(formidable2rdb.credential_invalid);
-        }
+        validate_credentials($(this), e);
     });
 
     $("#f2r_test_credential").click(function () {
@@ -28,7 +28,6 @@ jQuery(document).ready(function ($) {
                 pass = $("#f2r_admin_connection_pass").val(),
                 host = $("#f2r_admin_connection_host").val(),
                 db_name = $("#f2r_admin_connection_db_name").val();
-
             $.post(formidable2rdb.admin_url, {
                 'action': 'test_credential',
                 'user': user,
@@ -61,9 +60,55 @@ jQuery(document).ready(function ($) {
             });
         }
         else {
+            $("input[name='f2r_submit']").prop('disabled', false);
             alert(formidable2rdb.credential_invalid);
         }
     });
+
+    function validate_credentials(element, e) {
+        e.preventDefault();
+        $(".f2r_loading").show();
+        var user = $("#f2r_admin_connection_user").val(),
+            pass = $("#f2r_admin_connection_pass").val(),
+            host = $("#f2r_admin_connection_host").val(),
+            db_name = $("#f2r_admin_connection_db_name").val();
+        $.post(formidable2rdb.admin_url, {
+            'action': 'test_credential',
+            'user': user,
+            'pass': pass,
+            'host': host,
+            'db_name': db_name,
+            '_ajax_nonce': formidable2rdb.security
+        }, function (data) {
+            if (data) {
+                data = JSON.parse(data);
+                if (data.value == "test_credential") {
+                    if (data.data == false) {
+                        if (element.prop('type') == 'submit') {
+                            $('form').submit();
+                            alert("Credentials Saved");//TODO Check Language
+                        }
+                        else {
+                            alert("Ok");
+                        }
+                    }
+                    else {
+                        alert(formidable2rdb.credential_fail);
+                    }
+                }
+                else {
+                    alert(formidable2rdb.general_error);
+                }
+            }
+            else {
+                alert(formidable2rdb.general_error);
+            }
+        }).fail(function () {
+            alert(formidable2rdb.general_error);
+        }).always(function () {
+            $(".f2r_loading").hide();
+        });
+    }
 
 
     // function process_submit() {
@@ -208,11 +253,6 @@ jQuery(document).ready(function ($) {
         var a = settings.data.indexOf('type=formidable2rdb');
         if (settings.data.indexOf('type=formidable2rdb') >= 0) {
             if (setting_controller == false) {
-
-
-
-
-
                 // var submit_controller = false;
                 // $(document).on('submit', '.frm_form_settings', function (e) {
                 //     if (submit_controller === true) {
@@ -229,3 +269,10 @@ jQuery(document).ready(function ($) {
 
 
 });
+
+/*
+* Enabled or disable the submit button
+* */
+// function allowSubmit( allow){
+//     jQuery("input[name='f2r_submit']").prop('disabled',!allow);
+// }
