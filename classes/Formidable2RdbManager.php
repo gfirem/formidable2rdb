@@ -21,7 +21,7 @@ class Formidable2RdbManager {
 				require_once 'Formidable2RdbLog.php';
 				new Formidable2RdbLog();
 
-				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+				if ( Formidable2RdbFreemius::getFreemius()->is_paying_or_trial()  ) {
 					require_once 'Formidable2RdbGeneric.php';
 					new Formidable2RdbGeneric();
 
@@ -38,7 +38,7 @@ class Formidable2RdbManager {
 				require_once 'Formidable2RdbAdminView.php';
 				new Formidable2RdbAdminView();
 
-				if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+				if ( Formidable2RdbFreemius::getFreemius()->is_paying_or_trial() ) {
 					require_once 'Formidable2RdbTrackTables.php';
 					new Formidable2RdbTrackTables();
 

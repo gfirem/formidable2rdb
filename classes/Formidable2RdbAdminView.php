@@ -12,7 +12,7 @@ class Formidable2RdbAdminView {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+		if ( Formidable2RdbFreemius::getFreemius()->is_paying_or_trial() ) {
 			add_action( 'admin_init', array( $this, 'register_admin_settings' ) );
 
 			add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
@@ -139,7 +139,7 @@ class Formidable2RdbAdminView {
 	 */
 	public function admin_menu() {
 		$this->create_main_menu( 'menu_manage' );
-		if ( Formidable2RdbFreemius::getFreemius()->is_paying() ) {
+		if ( Formidable2RdbFreemius::getFreemius()->is_paying_or_trial() ) {
 			try {
 				//Add a sub page for each table in the system if a single site
 				if ( ! is_network_admin() ) {
