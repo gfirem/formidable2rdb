@@ -121,7 +121,7 @@
                     <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_name f2r_map_option_<?php echo $this->number ?>" name="f2r_column_name_<?php echo $f["field_key"] ?>" id="f2r_column_name_<?php echo $f["field_key"] ?>" value="<?php echo "$column_name"; ?>">
                 </td>
                 <td>
-                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>" value="<?php echo "$column_default"; ?>">
+                    <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_default f2r_map_option_<?php echo $this->number ?>" name="f2r_column_default_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_default_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_default"; ?>">
                 </td>
                 <td>
                     <select field_id="<?php echo $f["field_key"] ?>" field_type="<?php echo $f["type"]; ?>" action_id="<?php echo $this->number ?>" class="f2r f2r_map_type f2r_map_option_<?php echo $this->number ?>" name="f2r_column_type_<?php echo $f["field_key"] ?>" id="f2r_column_type_<?php echo $f["field_key"] ?>">
@@ -139,8 +139,8 @@
                 </td>
                 <td class="f2r_length_container">
                     <div class="length_precision_container">
-                        <input autocomplete="off" field_id="<?php echo $f["field_key"] ?>" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>" value="<?php echo "$column_length"; ?>">
-                        <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>" value="<?php echo "$column_precision"; ?>">
+                        <input autocomplete="off" field_id="<?php echo $f["field_key"] ?>" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_length f2r_map_option_<?php echo $this->number ?>" name="f2r_column_length_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_length_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_length"; ?>">
+                        <input autocomplete="off" type="text" action_id="<?php echo $this->number ?>" class="f2r f2r_map_precision f2r_map_option_<?php echo $this->number ?>" name="f2r_column_precision_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" id="f2r_column_precision_<?php echo $f["field_key"] ?>_<?php echo $this->number ?>" value="<?php echo "$column_precision"; ?>">
                     </div>
                 </td>
                 <td>
@@ -176,56 +176,3 @@
     </table>
 </div>
 <span><?php echo Formidable2RdbManager::t( "Select when to trigger the action  - when an entry is created, updated, deleted or imported." ); ?></span>
-<script>
-	jQuery(document).ready(function ($) {
-		var action_id = <?php echo $this->number; ?>;
-		$(".frm_form_settings").on("submit", function (e) {
-			var $form = $(this);
-			var mapped_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_mapped_field]']");
-			var mapped_old_field = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_mapped_field]']");
-			var mapped_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_table_name]']");
-			var mapped_old_table_name = $("[name='frm_formidable2rdb_action[" + action_id + "][post_content][f2r_old_table_name]']");
-
-			var action_fields = $('table.f2r_map_table tr.f2r_row').map(function (i, v) {
-				var $id = $('.f2r_map_id', this);
-				var $enabled = $('.f2r_map_enabled', this);
-				var $name = $('.f2r_map_name', this);
-				var $default = $('.f2r_map_default', this);
-				var $type = $('.f2r_map_type', this);
-				var $length = $('.f2r_map_length ', this);
-				var $precision = $('.f2r_map_precision', this);
-				var $null = $('.f2r_map_not_null', this);
-				return {
-					'Id': $id.val(),
-					'Enabled': $enabled.is(":checked"),
-					'Field': $name.val(),
-					'Default': $default.val(),
-					'Type': $type.val(),
-					'Length': $length.val(),
-					'Precision': $precision.val(),
-					'Null': $null.val()
-				}
-			}).get();
-
-			var json = JSON.stringify(action_fields);
-			if(mapped_field) {
-                mapped_field.val(json);
-                if (!mapped_old_field.val()) {
-                    mapped_old_field.val(json);
-                }
-
-                if (!mapped_old_table_name.val()) {
-                    mapped_old_table_name.val(mapped_table_name.val());
-                }
-
-                if (!mapped_table_name.val()) {
-                    e.preventDefault();
-                    mapped_table_name.addClass("f2r_error");
-                    alert(formidable2rdb.table_name_required);
-                } else {
-                    mapped_table_name.removeClass("f2r_error");
-                }
-            }
-		});
-	});
-</script>

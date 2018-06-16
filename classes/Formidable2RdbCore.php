@@ -6,56 +6,52 @@
 require_once 'Formidable2RdbGeneric.php';
 
 class Formidable2RdbCore {
-	
+
 	/**
 	 * Instance of this class.
 	 *
 	 * @var object
 	 */
 	protected static $instance = null;
-	
+
 	/**
 	 * PDO instance
 	 *
 	 * @var PDO
 	 */
 	public $mbd;
-	
+
 	/**
 	 * @var Object implements Formidable2RdbInterface
 	 */
 	public $handler;
-	
+
 	public $debug = false;
-	
-	
+
+
 	function __construct( $args = array(), $debug = false ) {
-		
-		
 		$this->handler = $this->load_handler( $args );
 		$this->mbd     = $this->handler->getMbd();
 		$this->debug   = $debug;
 	}
-	
+
 	/**
 	 * @internal $credential array $cong_array parameters to config the core array with keys driver, host, dbname, user, pass. The option "driver" can be one of [mysql|pgsql|sqlite]
 	 *
 	 * @param array $args array $cong_array parameters to config the core array with keys driver, host, dbname, user, pass. The option "driver" can be one of [mysql|pgsql|sqlite]
 	 *
 	 * @return mixed
-	 * @throws Exception
 	 */
 	private function load_handler( $args = array() ) {
 		try {
 			$options = array();
-			
-			
+
 			if ( ! empty( $args ) ) {
 				$options = $args;
 			} else {
 				//Get the correct credential
 				$general_option = get_option( Formidable2RdbManager::getSlug() );
-				
+
 				$db_credential = array(
 					"driver" => "mysql",
 					"host"   => DB_HOST,
@@ -64,14 +60,14 @@ class Formidable2RdbCore {
 					"pass"   => DB_PASSWORD,
 					"debug"  => $this->debug,
 				);
-				
+
 				if ( ! empty( $general_option ) ) {
-					
+
 					if ( ! empty( $general_option['connection_wp_data'] ) ) {
 						$this->debug            = true;
 						$db_credential["debug"] = true;
 					}
-					
+					//TODO this need improvements to avoid issues with some of the cases where the user set the credential and not need to use it
 					if ( empty( $general_option['connection_wp_data'] ) ) {
 						//Get connection from setting
 						if ( ! empty( $general_option['connection_user'] ) && ! empty( $general_option['connection_host'] ) && ! empty( $general_option['connection_db_name'] ) ) {
@@ -91,7 +87,7 @@ class Formidable2RdbCore {
 								"type"    => "danger"
 							) );
 						}
-						
+
 					} else {
 						//Get connection from the WP
 						$options = $db_credential;
@@ -101,28 +97,33 @@ class Formidable2RdbCore {
 					$options = $db_credential;
 				}
 			}
-			
-			
+
+
 			if ( ! is_array( $options ) && empty( $options["driver"] ) ) {
 				throw new Exception( "No driver name detect to load the Handler file." );
 			}
-			
-			
+
+			//Load different handles. This enable de plugin to  use different Relational Database Providers
 			$handler        = 'Formidable2' . $options["driver"];
 			$handlerColumn  = 'Formidable2' . $options["driver"] . 'Column';
 			$handlerColFact = 'Formidable2' . $options["driver"] . 'ColumnFactory';
 			require_once 'core/' . $handler . '.php';
 			require_once 'core/' . $handlerColumn . '.php';
 			require_once 'core/' . $handlerColFact . '.php';
-			
+
 			$class = new $handler( $options );
-			
+
 			return $class;
 		} catch ( Exception $ex ) {
-			throw new Exception( $ex->getMessage() );
+			Formidable2RdbGeneric::setMessage( array(
+				"message" => "Formidable2RdbManager->__construct()::" . $ex->getMessage(),
+				"type"    => "danger"
+			) );
 		}
+
+		return false;
 	}
-	
+
 	/**
 	 * Return an instance of this class.
 	 *
@@ -135,23 +136,23 @@ class Formidable2RdbCore {
 		if ( null == self::$instance ) {
 			self::$instance = new Formidable2RdbCore( $cong_array = array() );
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	/**
 	 * @return PDO
 	 */
 	public function getMbd() {
 		return $this->mbd;
 	}
-	
+
 	/**
 	 * @return Object
 	 */
 	public function getHandler() {
 		return $this->handler;
 	}
-	
-	
+
+
 }
