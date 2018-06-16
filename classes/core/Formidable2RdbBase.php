@@ -34,6 +34,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					PDO::ATTR_PERSISTENT               => true,
 					PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
 					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+					PDO::ATTR_EMULATE_PREPARES         => 1,
 					PDO::MYSQL_ATTR_INIT_COMMAND       => "SET NAMES 'utf8'"
 				) );
 
@@ -57,8 +58,12 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 		return sprintf( '`%s`', $key );
 	}
 
-	private function get_table_name( $table ) {
-		return sprintf( '`%s`.`%s`', $this->db_name, strtolower( $this->escape( $table ) ) );
+	private function get_table_name( $table, $exclude_db = false ) {
+		if ( $exclude_db ) {
+			return sprintf( '`%s`', strtolower( $this->escape( $table ) ) );
+		} else {
+			return sprintf( '`%s`.`%s`', $this->db_name, strtolower( $this->escape( $table ) ) );
+		}
 	}
 
 	public function build_sql( $action, $args ) {
@@ -86,7 +91,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					$sql     = sprintf( 'UPDATE %s SET ', $this->get_table_name( $args['table_name'] ) );
 					$columns = array();
 					foreach ( $args['columns'] as $key => $value ) {
-						$columns[] = sprintf( '%s.%s=%s', $this->get_table_name( $args['table_name'] ), $this->get_column_key_data( $key ), $this->get_value_data( $value ) );
+						$columns[] = sprintf( '%s.%s=%s', $this->get_table_name( $args['table_name'], true ), $this->get_column_key_data( $key ), $this->get_value_data( $value ) );
 					}
 					$column_string = implode( ', ', $columns );
 					$sql           .= sprintf( '%s WHERE entry_id=%s', $column_string, $args['entry_id'] );
@@ -105,7 +110,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					 * @var Formidable2mysqlColumn $def
 					 */
 					foreach ( $args['columns'] as $key => $def ) {
-						$sql .= sprintf( '%s.`%s` %s %s', $this->get_table_name( $args['table_name'] ), $this->escape( $def->Field ), $this->escape( $def->Type ), $this->escape( $def->Null ) );
+						$sql .= sprintf( '%s.`%s` %s %s', $this->get_table_name( $args['table_name'], true ), $this->escape( $def->Field ), $this->escape( $def->Type ), $this->escape( $def->Null ) );
 						if ( ! empty( $def->Default ) ) {
 							$sql .= sprintf( ' DEFAULT `%s`', $this->escape( $def->Default ) );
 						}
@@ -138,7 +143,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 					$sql    = sprintf( 'ALTER TABLE %s ADD COLUMN (', $this->get_table_name( $args['table_name'] ) );
 					$column = array();
 					foreach ( $args['columns'] as $key => $def ) {
-						$sql_row = sprintf( '%s.`%s` %s %s', $this->get_table_name( $args['table_name'] ), $this->escape( $def->Field ), $this->escape( $def->Type ), $this->escape( $def->Null ) );
+						$sql_row = sprintf( '`%s` %s %s', $this->escape( $def->Field ), $this->escape( $def->Type ), $this->escape( $def->Null ) );
 						if ( ! empty( $def->Default ) ) {
 							$sql_row .= sprintf( ' DEFAULT `%s`', $this->escape( $def->Default ) );
 						}
@@ -155,7 +160,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 				if ( $this->check_requirements( $args, array( 'table_name', 'columns' ) ) ) {
 					$sql = '';
 					foreach ( $args['columns'] as $key => $def ) {
-						$sql .= sprintf( 'ALTER TABLE %1$s DROP COLUMN %1$s.`%2$s`;\r\n', $this->get_table_name( $args['table_name'] ), $this->escape( $def->Field ) );
+						$sql .= sprintf( 'ALTER TABLE %1$s DROP COLUMN `%2$s`; ', $this->get_table_name( $args['table_name'] ), $this->escape( $def->Field ) );
 					}
 				} else {
 					throw new InvalidArgumentException();
@@ -165,11 +170,11 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 			case 'change_column':
 				if ( $this->check_requirements( $args, array( 'table_name', 'columns' ) ) ) {
 					foreach ( $args['columns'] as $key => $new_def ) {
-						$sql .= sprintf( 'ALTER TABLE %1$s CHANGE COLUMN %1$s.%2$s %1$s.`%3$s` %4$s %5$s', $this->get_table_name( $args['table_name'] ), $this->get_column_key_data( $key ), $this->escape( $new_def->Field ), $this->escape( $new_def->Type ), $this->escape( $new_def->Null ) );
+						$sql .= sprintf( 'ALTER TABLE %1$s CHANGE COLUMN %2$s `%3$s` %4$s %5$s', $this->get_table_name( $args['table_name'] ), $this->get_column_key_data( $key ), $this->escape( $new_def->Field ), $this->escape( $new_def->Type ), $this->escape( $new_def->Null ) );
 						if ( ! empty( $new_def->Default ) ) {
 							$sql .= sprintf( ' DEFAULT `%s`', $this->escape( $new_def->Default ) );
 						}
-						$sql .= ';\r\n';
+						$sql .= '; ';
 					}
 
 				} else {
@@ -180,7 +185,7 @@ abstract class Formidable2RdbBase implements Formidable2RdbInterface {
 
 		if ( $this->debug ) {
 			if ( $this->is_test() ) {
-				echo 'action (' . $action . ') SQL: ' . $sql . '\r\n';
+				echo 'action (' . $action . ') SQL: ' . $sql . '\r\n ';
 			} else {
 				Formidable2RdbLog::log( array(
 					'action'         => $action,
