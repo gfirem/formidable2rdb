@@ -6,9 +6,9 @@ class Formidable2RdbCoreTest extends Formidable2RdbTestBase {
 	
 	public $conf = array(
 		"driver" => "mysql",
-		"dbname" => "wp_autocomplete",
-		"user"   => "root",
-		"pass"   => "",
+		"dbname" => "wordpress",
+		"user"   => "wordpress",
+		"pass"   => "wordpress",
 		"debug"   => true,
 	);
 	
