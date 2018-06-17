@@ -14,7 +14,6 @@ class Formidable2RdbAdminView {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		if ( Formidable2RdbFreemius::getFreemius()->is_paying_or_trial() ) {
 			add_action( 'admin_init', array( $this, 'register_admin_settings' ) );
-
 			add_action( "wp_ajax_get_add_columns", array( $this, "get_add_columns" ) );
 			add_action( "wp_ajax_test_credential", array( $this, "test_credential" ) );
 
@@ -241,6 +240,9 @@ class Formidable2RdbAdminView {
 			add_settings_section( 'debug_section', '', '', Formidable2RdbManager::getSlug() );
 
 			add_settings_field( 'debug_data', Formidable2RdbManager::t( '<b>Enable Debug Mode</b>' ), array( $this, 'debug_data' ), Formidable2RdbManager::getSlug(), 'debug_section' );
+			
+			add_settings_section( 'system_credentials_section', '', '', Formidable2RdbManager::getSlug());
+			add_settings_field( 'use_system_credentials', 'Use system Credentials', array( $this, 'render_chkbox_system_default' ), Formidable2RdbManager::getSlug(),'system_credentials_section');
 
 			add_settings_section( 'section_connection', Formidable2RdbManager::t( "Connection Data" ), array( $this, "connection_wp_data" ), Formidable2RdbManager::getSlug() );
 
@@ -251,19 +253,6 @@ class Formidable2RdbAdminView {
 			add_settings_section( 'save_data', '', array( $this, "save_data" ), Formidable2RdbManager::getSlug() );
 
 			add_settings_section( 'section_overview', Formidable2RdbManager::t( "Tables overview" ), array( $this, 'section_overview_tables' ), Formidable2RdbManager::getSlug() );
-
-//			//TODO This is not correct, we need to use the way of WP to handle the settings. Take a look to the codex and place this functions in the correct place.
-//			add_settings_section( 'SectionPage_Id', '', '', $slug );
-//			self::render_field_in_settingPage( 'f2r_admin_connection_user', 'User', $sectionId, $slug, 'text', true, $slug );
-//			self::render_field_in_settingPage( 'f2r_admin_connection_pass', 'Password', $sectionId, $slug, 'password', false, $slug );
-//			self::render_field_in_settingPage( 'f2r_admin_connection_host', 'Host', $sectionId, $slug, 'text', true, $slug );
-//			self::render_field_in_settingPage( 'f2r_admin_connection_db_name', 'Data Base Name', $sectionId, $slug, 'text', true, $slug );
-//			add_settings_field( 'f2r_test_credential', '', function () {
-//				echo '<input type="button"  id="f2r_test_credential" name="test" value="Test Credential" />';
-//			}, $slug, $sectionId );
-//			add_settings_field( 'f2r_submit', '', function () {
-//				submit_button( 'Save Data', 'button-primary', 'f2r_submit' );
-//			}, $slug, $sectionId );
 		} catch ( Formidable2RdbException $ex ) {
 			Formidable2RdbManager::handle_exception( $ex->getMessage(), $ex->getBody() );
 		} catch ( Exception $ex ) {
@@ -281,6 +270,10 @@ class Formidable2RdbAdminView {
 
 			if ( isset( $input['debug_data'] ) ) {
 				$new_input['debug_data'] = absint( $input['debug_data'] );
+			}
+
+			if ( isset( $input['use_system_credentials'] ) ) {
+				$new_input['use_system_credentials'] = absint( $input['use_system_credentials'] );
 			}
 
 			foreach ( self::get_credentials_array() as $credential_key => $credential_name ) {
@@ -304,6 +297,12 @@ class Formidable2RdbAdminView {
 	public function debug_data() {
 		$this->get_view_for( "debug_data", "checkbox" );
 	}
+
+	public function render_chkbox_system_default() {
+		$this->get_view_for( "use_system_credentials", "checkbox" );
+	}
+
+
 	
 	public function connection_wp_data() {
 		echo "<b>" . Formidable2RdbManager::t( 'By default the Formidable2Rdb use the WP credential to connect to the database. In case of error with the provided credential the system keep using it.' ) . "</b>";
@@ -414,52 +413,5 @@ class Formidable2RdbAdminView {
 		echo "</ul></div>";
 	}
 
-	/**
-	 * Allow to create a Text , numeric, password or a combo box Field
-	 * @author: Amilkar Ferrá Díaz
-	 *
-	 * @param $name string: field name
-	 * @param $type string: this paramater can take 'text' ,  'nùmeric' o 'select'.. default value 'text'
-	 * @param $title string Title of the Field
-	 * @param $sectionId string: id of the section
-	 * @param $option_group_name string: Option Name
-	 * @param bool $required : if the field is required
-	 * @param $page string: Slug Name of the page
-	 * @param array $args idem to the add_settings_field arguments. If the field is 'select' type the argument must have an array of options in an 'option' index
-	 */
-	public static function render_field_in_settingPage( $name, $title, $sectionId, $option_group_name, $type = 'text', $required = true, $page, $args = array() ) {
-		$newType     = ( $type == 'number' || $type == 'select' || $type == 'password' || $type == 'checkbox' ) ? $type : 'text';//if there is a bad input or is empty default value is text
-		$placeholder = $type != 'number' ? 'Please insert text' : 'Please insert a number'; //TODO implement language for this texts
-		if ( $newType == 'number' || $newType == 'text' || $newType == 'password' ) {
-			add_settings_field( $name, $title, function () use ( $placeholder, $newType, $name, $option_group_name, $required ) {
-				$options = get_option( $option_group_name );
-				$valor   = isset( $options[ $name ] ) ? $options[ $name ] : '';
-				printf( '<input type="%s"  id="%s" name="%s[%s]" value="%s" placeholder="%s" %s />', $newType, $name, $option_group_name, $name, $valor, $placeholder, $required ? 'required' : '' );
-			}, $page, $sectionId, $args );
-		} else if ( $newType == 'select' ) {
-			add_settings_field( $name, $title, function () use ( $args, $placeholder, $newType, $name, $option_group_name, $required ) {
-				$options = get_option( $option_group_name );
-				$valor   = isset( $options[ $name ] ) ? $options[ $name ] : '';
-				?> <select id="<?php echo $name ?>"
-                           name="<?php echo $option_group_name . '[' . $name . ']' ?>"/> <?php
-				//building options of combo
-				if ( isset( $args['options'] ) ) {
-					$options = $args['options'];
-					$str     = '';
-					foreach ( $options as $key => $loopValue ) {
-						$str .= '<option value="' . $loopValue . '" ' . selected( $valor, $loopValue ) . '>' . $loopValue . '</option>';
-					}
-					echo $str;
-				}
-			}, $page, $sectionId, $args );
 
-		} else if ( $newType == 'checkbox' ) {
-			add_settings_field( $name, $title, function () use ( $name, $option_group_name ) {
-				$options = get_option( $option_group_name );
-				$value   = isset( $options[ $name ] ) ? $options[ $name ] : '';
-				$element = checked( 1, $value, false );
-				printf( '<input type="checkbox"  id="%s" name="%s[%s]" value="1"  %s />', $name, $option_group_name, $name, $element );
-			}, $page, $sectionId );
-		}
-	}
 }
