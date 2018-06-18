@@ -12,7 +12,6 @@ jQuery(document).ready(function ($) {
         if (!user || !host || !db_name) {
             result = false;
         }
-
         return result;
     }
 
@@ -60,10 +59,17 @@ jQuery(document).ready(function ($) {
             });
         }
         else {
-            $("input[name='f2r_submit']").prop('disabled', false);
             alert(formidable2rdb.credential_invalid);
         }
     });
+
+    $("#f2r_admin_use_system_credentials").click(
+        function () {
+          var checked =  $(this).prop('checked');
+
+              $(':text,:password').prop('disabled',checked)
+        }
+    );
 
     function validate_credentials(element, e) {
         e.preventDefault();
@@ -252,17 +258,17 @@ jQuery(document).ready(function ($) {
     jQuery(document).bind('ajaxComplete ', function (event, xhr, settings) {
         var a = settings.data.indexOf('type=formidable2rdb');
         if (settings.data.indexOf('type=formidable2rdb') >= 0) {
-            if (setting_controller == false) {
-                // var submit_controller = false;
-                // $(document).on('submit', '.frm_form_settings', function (e) {
-                //     if (submit_controller === true) {
-                //         submit_controller = false;
-                //         return;
-                //     }
-                //     submit_controller = true;
-                //     process_submit.call(this);
-                // });
-            }
+            // if (setting_controller == false) {
+            //     // var submit_controller = false;
+            //     // $(document).on('submit', '.frm_form_settings', function (e) {
+            //     //     if (submit_controller === true) {
+            //     //         submit_controller = false;
+            //     //         return;
+            //     //     }
+            //     //     submit_controller = true;
+            //     //     process_submit.call(this);
+            //     // });
+            // }
             setting_controller = true;
         }
     });
