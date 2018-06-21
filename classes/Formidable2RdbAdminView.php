@@ -241,10 +241,11 @@ class Formidable2RdbAdminView {
 
 			add_settings_field( 'debug_data', Formidable2RdbManager::t( '<b>Enable Debug Mode</b>' ), array( $this, 'debug_data' ), Formidable2RdbManager::getSlug(), 'debug_section' );
 			
-			add_settings_section( 'system_credentials_section', '', '', Formidable2RdbManager::getSlug());
-			add_settings_field( 'use_system_credentials', 'Use system Credentials', array( $this, 'render_chkbox_system_default' ), Formidable2RdbManager::getSlug(),'system_credentials_section');
+
 
 			add_settings_section( 'section_connection', Formidable2RdbManager::t( "Connection Data" ), array( $this, "connection_wp_data" ), Formidable2RdbManager::getSlug() );
+
+			add_settings_field( 'use_system_credentials', 'Use system Credentials', array( $this, 'render_chkbox_system_default' ), Formidable2RdbManager::getSlug(),'section_connection');
 
 			foreach ( self::get_credentials_array() as $credential_key => $credential_name ) {
 				add_settings_field( $credential_key, $credential_name, array( $this, $credential_key ), Formidable2RdbManager::getSlug(), 'section_connection' );
@@ -285,6 +286,10 @@ class Formidable2RdbAdminView {
 			if ( isset( $_SESSION["message"] ) ) {
 				$_SESSION["message"] = array();
 			}
+			//if some data is missing use system default
+			if(!isset( $new_input["connection_db_name"]) || !isset( $new_input["connection_host"]) || !isset( $new_input["connection_user"]) ){
+				$new_input['use_system_credentials'] =1;
+            }
 
 			return $new_input;
 		} catch ( Exception $ex ) {

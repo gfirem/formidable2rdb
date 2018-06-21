@@ -31,7 +31,7 @@ class Formidable2RdbCore {
 
 	function __construct( $args = array(), $debug = false ) {
 		$this->handler = $this->load_handler( $args );
-		$this->mbd     = $this->handler->getMbd();
+		//$this->mbd     = $this->getMbd();
 		$this->debug   = $debug;
 	}
 
@@ -63,12 +63,13 @@ class Formidable2RdbCore {
 
 				if ( ! empty( $general_option ) ) {
 
-					if ( ! empty( $general_option['connection_wp_data'] ) ) {
+					if ( ! empty( $general_option['use_system_credentials'] ) ) {
 						$this->debug            = true;
 						$db_credential["debug"] = true;
+						$this->mbd     = $this->getMbd();//Added
 					}
 					//TODO this need improvements to avoid issues with some of the cases where the user set the credential and not need to use it
-					if ( empty( $general_option['connection_wp_data'] ) ) {
+					if ( empty( $general_option['use_system_credentials'] ) ) {
 						//Get connection from setting
 						if ( ! empty( $general_option['connection_user'] ) && ! empty( $general_option['connection_host'] ) && ! empty( $general_option['connection_db_name'] ) ) {
 							$options = array(
@@ -110,15 +111,18 @@ class Formidable2RdbCore {
 			require_once 'core/' . $handler . '.php';
 			require_once 'core/' . $handlerColumn . '.php';
 			require_once 'core/' . $handlerColFact . '.php';
-
 			$class = new $handler( $options );
-
 			return $class;
 		} catch ( Exception $ex ) {
+
 			Formidable2RdbGeneric::setMessage( array(
-				"message" => "Formidable2RdbManager->__construct()::" . $ex->getMessage(),
+				"message" => "Formidable2RdbManager->__construct()::" . $ex->getMessage(), //TODO set a friendly error connection message
 				"type"    => "danger"
 			) );
+			//in case of error use default system credentials
+			$options=$db_credential;
+			$class = new $handler( $options );
+			return $class;
 		}
 
 		return false;
