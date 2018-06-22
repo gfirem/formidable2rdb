@@ -311,19 +311,7 @@ class Formidable2RdbAdminView {
 	public function connection_wp_data() {
 		echo "<b>" . Formidable2RdbManager::t( 'By default the Formidable2Rdb use the WP credential to connect to the database. In case of error with the provided credential the system keep using it.' ) . "</b>";
 	}
-
-	public function version() {
-		echo "<span>" . Formidable2RdbManager::getVersion() . "</span>";
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function order_key() {
-		$key = get_option( Formidable2RdbManager::getShort() . 'licence_key' );
-		echo "<input name='formidable2rdb[" . Formidable2RdbManager::getShort() . 'licence_key' . "]' type='text' value='" . $key . "'/>";
-	}
-
+	
 	public function connection_user() {
 		$this->get_view_for( "connection_user" );
 	}
