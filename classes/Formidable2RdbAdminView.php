@@ -335,8 +335,10 @@ class Formidable2RdbAdminView {
 	}
 	
 	public function connection_db_name() {
+	    $general_option= get_option(Formidable2RdbManager::getSlug());
 		$this->get_view_for( "connection_db_name" );
-		?> <p class="submit"><input type="button" name="test" id="f2r_test_credential" class="button" value="Test Credential"> <?php
+		$disabledString = isset( $general_option['use_system_credentials'])?"disabled":"";
+		echo '<p class="submit"><input type="button" name="test" id="f2r_test_credential" class="button" value="Test Credential" '.$disabledString.'> ';
 		echo '<img class="f2r_loading" id="f2r_loading_<?php echo $this->number ?>" src="/wp-content/plugins/formidable/images/ajax_loader.gif"/>';
 		echo "</p>";
 	}
@@ -359,7 +361,8 @@ class Formidable2RdbAdminView {
 			default:
 				$value = "value='" . $data . "'";
 		}
-		echo "<input name='formidable2rdb[" . $setting . "]' id='f2r_admin_" . $setting . "' type='" . $type . "' " . $value . " />";
+		$enabledString = isset( $general_option['use_system_credentials']) && $type!='checkbox'?" disabled ":"";
+		echo "<input name='formidable2rdb[" . $setting . "]' id='f2r_admin_" . $setting . "' type='" . $type . "' " . $value ."  ".$enabledString." />";
 	}
 	
 	public function section_overview_tables() {
