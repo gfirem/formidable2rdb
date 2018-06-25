@@ -129,13 +129,6 @@ class Formidable2RdbAdminView {
 	}
 
 	/**
-	 * Network menu view implementation
-	 */
-	public function network_manage() {
-
-	}
-
-	/**
 	 * Site menu
 	 */
 	public function admin_menu() {

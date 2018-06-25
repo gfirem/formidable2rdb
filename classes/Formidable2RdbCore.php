@@ -81,6 +81,10 @@ class Formidable2RdbCore {
 						} else {
 							//Use credential from WP
 							$options = $db_credential;
+							Formidable2RdbGeneric::setMessage( array(
+								"message" => Formidable2RdbManager::t( "Formidable2Rdb::Exist error with the provided credential, the system keep using the wp credential." ),
+								"type"    => "danger"
+							) );
 						}
 					} else {
 						//Get connection from the WP
