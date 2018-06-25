@@ -2,7 +2,7 @@
 Contributors: gfirem
 Tags: formidable, push entries to mysql, formidable action, formidable mysql action, custom action, push entries to mysql
 Requires at least: 4.5
-Tested up to: 4.9
+Tested up to: 4.9.6
 Stable tag: 2.0.0
 License: Apache License 2.0
 License URI: http://www.apache.org/licenses/
@@ -13,6 +13,14 @@ Formidable action to push data to MySQL
 Add action to send data to a MySQL table. It create the table to synch the data.
 
 == Changelog ==
+= 2.0.0 =
+* Adding multisite options into Freemius.
+* Improving the Settings page.
+* Fixing the issue related to delete the actions.
+* Improving the actions.
+* Enabling trials.
+* Fixing the core to make more safe queries, improving the validations of the table name and the columns.
+
 = 1.2.6 =
 * Updating freemius library.
 * Adding multi-site support from freemius. Now if you use multi-site and bought multiples license, they will be automatically apply to child sites.
