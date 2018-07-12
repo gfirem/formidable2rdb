@@ -8,9 +8,9 @@ class Formidable2RdbGeneric {
 	function __construct() {
 		add_filter( F2M_PREFIX . 'plugin_action_links_' . F2M_BASE_NAME, array( $this, 'add_formidable_key_field_setting_link' ), 9, 2 );
 		add_action( 'admin_footer', array( $this, 'enqueue_js' ) );
-		add_action( 'wp_footer', array( $this, 'enqueue_js' ) );
+		//add_action( 'wp_footer', array( $this, 'enqueue_js' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 	}
 
 	/**
